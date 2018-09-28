@@ -14,31 +14,40 @@ html, body{
 .drag-resize {
   margin: 0;
   /* width: 40%; */
-  background-color: transparent;
-  color: #fff;
+  /* background-color: red; */
+  /* color: #fff; */
   position: absolute;
   /* right: -400px; */
   z-index: 3;
   overflow: visible;
+  user-select: none;
+  -webkit-user-select: none; /* Chrome/Safari */        
 }
 
 .emojiContainer {
   margin: 0;
-  background-color:transparent;
-  color: #fff;
+  /* background-color:transparent; */
+  /* color: #fff; */
   position: absolute;
   /* z-index: 3; */
   overflow: visible;
+  user-select: none;
+  -webkit-user-select: none; /* Chrome/Safari */        
+
 }
 
 .emoji {
   position: absolute;
   /* z-index: 2; */
   overflow: visible;
-  background-color: pink;
+  /* background-color: pink; */
   /* text-overflow: ; */
   white-space: nowrap;
   text-overflow: ellipsis;
+  background-color: transparent;
+  outline:none;
+  user-select: none;
+  -webkit-user-select: none; /* Chrome/Safari */        
 
 }
 
@@ -50,16 +59,19 @@ html, body{
   /* background-color: red; */
   /* z-index: 1; */
   background-color: transparent;
+  outline:none;
 }
 
 #canvas > div {
   outline: 2px solid lightgray;
   outline-offset: -1px;
+  /* background-color: transparent; */
   background-color: transparent;
+
 }
 
 .draggable {
-  background-color: red;
+  /* background-color: red; */
   /* top: 200px;
   right: 100px; */
   position: absolute;
@@ -69,4 +81,11 @@ html, body{
 
 #test {
   font-size: 1000px;
+}
+
+
+#btndonwload {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
 }

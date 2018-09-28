@@ -24,12 +24,13 @@ var vm = new Vue({
       
       var vm = this;
 
+      var randomNumber = Math.floor(Math.random() * Math.floor(vm.emojiList.length));
       var emoji = document.createElement('div');
       emoji.classList.add('emoji')
-      emoji.innerText = vm.emojiList[0];
+      emoji.innerText = vm.emojiList[randomNumber];
       emoji.style.fontSize = this.cellHeight + 'px';
-      emoji.style.top = this.cellHeight* -0.1 + 'px';
-      console.log('🐶');
+      emoji.style.top = this.cellHeight* -0.08 + 'px';
+      // console.log('🐶');
       var emojiContainer = document.createElement('div');
       emojiContainer.appendChild(emoji);
       emojiContainer.classList.add('emojiContainer')
@@ -43,7 +44,17 @@ var vm = new Vue({
       this.currentTop = y * this.cellHeight;
       document.getElementById('canvas').appendChild(emojiContainer);
 
-      emojiContainer.addEventListener('change', function(event) {
+
+      emojiContainer.addEventListener('move', function(event) {
+        vm.currentTop += event.detail[1];
+        vm.currentLeft += event.detail[0];
+        emojiContainer.style.left = vm.currentLeft + 'px';
+        emojiContainer.style.top = vm.currentTop + 'px';
+      })
+
+
+
+      emojiContainer.addEventListener('resize', function(event) {
         // console.log(event.detail);
         vm.currentWidth += event.detail.width;
         // console.log(vm.currentTop);  
@@ -53,12 +64,13 @@ var vm = new Vue({
         emojiContainer.style.width = vm.currentWidth + 'px';
         emojiContainer.style.height = vm.currentHeight + 'px';
         emojiContainer.style.left = vm.currentLeft + 'px';
-        emojiContainer.style.top = vm.currentTop + 'px';
+        emojiContainer.style.top = vm.currentTop*2 + 'px';
 
         console.log(emoji.childElementCount);
 
         emoji.style.transformOrigin = 'top left';
         // emoji.style.transform = 'translateY(-300px)';
+        // emoji.style.height = vm.currentHeight;
         emoji.style.transform = 'scale('+ vm.currentWidth/vm.cellHeight +', ' + vm.currentHeight/vm.cellHeight +')';
         
         // emoji.style.left = vm.currentWidth/4 + 'px';
@@ -126,6 +138,18 @@ var vm = new Vue({
         if (event.keyCode == 32) { 
           vm.placeEmoji(0, 0, 1, 1, 0, 0);
         }
+        if (event.keyCode == 13) {
+          html2canvas(document.getElementById('canvas')).then(function(canvas) {
+            download(canvas.toDataURL("image/png"), '1.png');
+            // document.body.appendChild(canvas);
+            // var canvas = document.getElementById("mycanvas");
+            // var img = ;
+            // download()
+            // // document.write('<img src="'+img+'"/>'); 
+            // document.download(img);
+            
+        });
+        }
       });
 
       
@@ -133,6 +157,33 @@ var vm = new Vue({
 })
 
 
+
+
+
+function download(canvas, filename) {
+  /// create an "off-screen" anchor tag
+  var lnk = document.createElement('a'), e;
+
+  /// the key here is to set the download attribute of the a tag
+  lnk.download = filename;
+
+  /// convert canvas content to data-uri for link. When download
+  /// attribute is set the content pointed to by link will be
+  /// pushed as "download" in HTML5 capable browsers
+  lnk.href = canvas.toDataURL("image/png;base64");
+
+  /// create a "fake" click-event to trigger the download
+  if (document.createEvent) {
+    e = document.createEvent("MouseEvents");
+    e.initMouseEvent("click", true, true, window,
+                     0, 0, 0, 0, 0, false, false, false,
+                     false, 0, null);
+
+    lnk.dispatchEvent(e);
+  } else if (lnk.fireEvent) {
+    lnk.fireEvent("onclick");
+  }
+}
 
 
 
@@ -191,7 +242,8 @@ interact('.drag-resize')
     }
   })
   .on('dragmove', function (event) {
-
+    vm.currentContainer.dispatchEvent(new CustomEvent('move', {detail: [event.dx, event.dy]}));
+    // console.log(event.dx);
     
     // console.log('dragging???');
     // if (vm.resizing) return;
@@ -234,7 +286,7 @@ interact('.drag-resize')
   })
   .on('resizemove', function (event) {
     // console.log(event);
-    vm.currentContainer.dispatchEvent(new CustomEvent('change', {detail: event.deltaRect}));
+    vm.currentContainer.dispatchEvent(new CustomEvent('resize', {detail: event.deltaRect}));
     console.log(event);
     vm.dX = event.deltaRect.left;
     vm.dY = event.deltaRect.top;
