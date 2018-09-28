@@ -5,14 +5,68 @@ html, body{
 }
 
 #app {
+  position: fixed;
   width: 100%;
   height: 100%;
 }
 
 
-.grid-snap {
+.drag-resize {
   margin: 0;
-  width: 40%;
-  background-color: #29e;
+  /* width: 40%; */
+  background-color: transparent;
   color: #fff;
+  position: absolute;
+  /* right: -400px; */
+  z-index: 3;
+  overflow: visible;
+}
+
+.emojiContainer {
+  margin: 0;
+  background-color:transparent;
+  color: #fff;
+  position: absolute;
+  /* z-index: 3; */
+  overflow: visible;
+}
+
+.emoji {
+  position: absolute;
+  /* z-index: 2; */
+  overflow: visible;
+  background-color: pink;
+  /* text-overflow: ; */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+}
+
+
+#canvas {
+  position: fixed;
+  display: flex;
+  flex-wrap: wrap;
+  /* background-color: red; */
+  /* z-index: 1; */
+  background-color: transparent;
+}
+
+#canvas > div {
+  outline: 2px solid lightgray;
+  outline-offset: -1px;
+  background-color: transparent;
+}
+
+.draggable {
+  background-color: red;
+  /* top: 200px;
+  right: 100px; */
+  position: absolute;
+  
+}
+
+
+#test {
+  font-size: 1000px;
 }
