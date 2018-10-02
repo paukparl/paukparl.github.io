@@ -27,17 +27,12 @@ function redraw() {
 }
 
 function saveImageData(canvas, w, h) {
-  console.log(canvas);
-  var unitSize = canvas.unitSize * canvas.dpr;
-  var canvasWidth = canvas.canvasWidth * canvas.dpr;
-  var imgData = canvas.ctx.getImageData(unitSize, unitSize, canvasWidth, canvasWidth);
+  var imgData = canvas.ctx.getImageData(100, 100, 1080, 1080);
   var newCanvas = document.createElement('canvas');
-  newCanvas.width = w;
-  newCanvas.height = h;
+  newCanvas.width = 1080;
+  newCanvas.height = 1080;
   newCanvas.ctx = newCanvas.getContext('2d');
-  newCanvas.ctx.scale(4, 4);
   newCanvas.ctx.putImageData(imgData, 0, 0);
-  
   download(newCanvas.toDataURL("image/png"), '1.png');
 }
 
@@ -49,9 +44,7 @@ window.addEventListener('keydown', function(event) {
     placeEmoji(0, 0, 1, 1, 0, 0);
   }
   if (event.keyCode == 13) {
-
-    saveImageData(canvas, 300, 300);
-    
+    saveImageData(canvas, 540, 540);
   }
 });
 
@@ -110,46 +103,280 @@ function EmojiPool() {
 function Canvas() {
   this.canvas = document.createElement('canvas');
   this.canvas.setAttribute('id', 'canvas');
-  document.getElementById('canvas-container').appendChild(this.canvas);
+  document.getElementById('canvas-container-div').appendChild(this.canvas);
+
+  this.canvas2 = document.createElement('canvas');
+  this.canvas2.setAttribute('id', 'canvas2');
+  document.getElementById('canvas-container-div').appendChild(this.canvas2);
   
   this.dpr = window.devicePixelRatio || 1; ///// lets use this later
   this.canvas.width = 640 * this.dpr;
   this.canvas.height = 640 * this.dpr;
-
-  console.log(this.canvas.width);
+  
+  this.canvas2.width = 640 * this.dpr;
+  this.canvas2.height = 640 * this.dpr;
   
   this.ctx = this.canvas.getContext('2d');
 
+  this.ctx2 = this.canvas2.getContext('2d');
+
   this.ctx.scale(this.dpr, this.dpr);
+  this.ctx2.scale(this.dpr, this.dpr);
   // this.canvas.style.width = this.canvas.parentNode.offsetWidth + 'px';
   // this.canvas.style.height = this.canvas.parentNode.offsetHeight + 'px';
   this.canvas.style.width = '640px';
   this.canvas.style.height = '640px';
+
+  this.canvas2.style.width = '640px';
+  this.canvas2.style.height = '640px';
   
-  
-  // this.ctx.globalCompositeOperation = 'overlay';
+
+  // CONTROL MODES
+  this.resizeLeft = false;
+  this.resizeRight = false;
+  this.resizeTop = false;
+  this.resizeBottom = false;
+  this.move = false;
+
+  // RESIZING STATE
+  this.resizing = false;
+
+  // EMOJI DATA PRIOR TO RESIZE
+  this.x0 = null;
+  this.y0 = null;
+  this.w0 = null;
+  this.h0 = null;
+  this.mouseX0 = null;
+  this.mouseY0 = null;
 
   // this.unitSize = window.innerHeight/8;
   this.canvasWidth = 640;
   this.canvasHeight = 640;
 
+
+
+
+
   this.setBlend = function(newMode) {
     this.ctx.globalCompositeOperation = newMode;
   }
+
+
+
+  var mouseX;
+  var mouseY;
+
+  this.canvas.addEventListener('mousemove', function(event) {
+    mouseX = event.clientX - canvas.canvas.parentNode.parentNode.offsetLeft;
+    mouseY = event.clientY - canvas.canvas.parentNode.parentNode.offsetTop -30;
+    // console.log(canvas.canvas.parentNode);
+
+
+
+
+    if (this.resizing) {
+      if (this.resizeLeft) {
+        console.log('left');
+        emojiOnFocus.x = mouseX;
+        emojiOnFocus.w = this.x0 + this.w0 - emojiOnFocus.x;
+      }
+
+      if (this.resizeRight) {
+        emojiOnFocus.w = mouseX - emojiOnFocus.x;
+        console.log('right');
+      }
+
+      if (this.resizeTop) {
+        emojiOnFocus.y = mouseY;
+        emojiOnFocus.h = this.y0 + this.h0 - emojiOnFocus.y;
+      }
+
+      if (this.resizeBottom) {
+        emojiOnFocus.h = mouseY - emojiOnFocus.y;
+      }
+    }
+
+    if (this.moving) {
+      emojiOnFocus.x = this.x0 + mouseX - this.mouseX0;
+      emojiOnFocus.y = this.y0 + mouseY - this.mouseY0;
+    }
+
+
+
+    
+    if (!emojiOnFocus) return;
+
+    // RESET EDGE EVENTS
+    this.inside= false;
+    this.leftEdge= false;
+    this.rightEdge= false;
+    this.topEdge = false;
+    this.bottomEdge = false;
+
+    this.resizeLeft = false;
+    this.resizeTop = false;
+    this.resizeBottom = false;
+    this.resizeRight = false;
+    this.move = false;
+
+    // DEFINE SHORTCUTS
+    var x = emojiOnFocus.x;
+    var y = emojiOnFocus.y;
+    var w = emojiOnFocus.w;
+    var h = emojiOnFocus.h;
+    var off = 15;
+
+    // DETECT INSIDE
+    if (x < mouseX
+        && x+w > mouseX
+        && y < mouseY
+        && y+h > mouseY) {
+      this.inside = true;
+    } 
+
+    // DETECT EDGE
+    if (y-off < mouseY && mouseY < y+h+off) {
+      if (x-off < mouseX && mouseX < x+off)
+      {
+        this.leftEdge = true;
+      }
+      if (x+w-off < mouseX && mouseX < x+w+off) {
+        this.rightEdge = true;
+      }
+    }
+
+    if (x-off < mouseX && mouseX < x+w+off) {
+      if (y-off < mouseY && mouseY < y+off) {
+        this.topEdge = true;
+      }
+      if (y+h-off < mouseY && mouseY < y+h+off) {
+        this.bottomEdge = true;
+      }
+    }
+
+
+    // DEFINE CONTROL MODE
+    if (this.leftEdge || this.rightEdge) {
+      canvas.canvas.style.cursor = 'ew-resize';
+
+      if (this.leftEdge) {
+        this.resizeLeft = true;
+      } else {
+        this.resizeRight = true;
+      }
+
+      if (this.topEdge && this.leftEdge
+          || this.bottomEdge && this.rightEdge) {
+        canvas.canvas.style.cursor = 'nwse-resize';
+
+        if (this.topEdge) {
+          this.resizeTop = true;
+          this.resizeLeft = true;
+        } else {
+          this.resizeBottom = true;
+          this.resizeRight = true;
+        }
+
+      } 
+      if (this.bottomEdge && this.leftEdge
+        || this.topEdge && this.rightEdge) {
+        canvas.canvas.style.cursor = 'nesw-resize';
+
+        if (this.topEdge) {
+          this.resizeTop = true;
+          this.resizeRIght = true;
+        } else {
+          this.resizeBottom = true;
+          this.resizeLeft = true;
+        }
+
+      }
+    }
+    else if (this.bottomEdge || this.topEdge) {
+      canvas.canvas.style.cursor = 'ns-resize';
+
+      if (this.topEdge) {
+        this.resizeTop = true;
+      } else {
+        this.resizeBottom = true;
+      }
+
+      if (this.topEdge && this.leftEdge
+          || this.bottomEdge && this.rightEdge) {
+        canvas.canvas.style.cursor = 'nwse-resize';
+
+        if (this.topEdge) {
+          this.resizeTop = true;
+          this.resizeLeft = true;
+        } else {
+          this.resizeBottom = true;
+          this.resizeRight = true;
+        }
+
+      } 
+      if (this.topEdge && this.leftEdge
+        || this.bottomEdge && this.rightEdge) {
+        canvas.canvas.style.cursor = 'nesw-resize';
+
+        if (this.topEdge) {
+          this.resizeTop = true;
+          this.resizeRIght = true;
+        } else {
+          this.resizeBottom = true;
+          this.resizeLeft = true;
+        }
+      }
+    }
+    else if (this.inside) {
+      canvas.canvas.style.cursor = 'move';
+      this.move = true;
+    }
+    else {
+      canvas.canvas.style.cursor = 'default';
+    }
+  })
+
+
+
+
+
+  this.canvas.addEventListener('mousedown', function(event) {
+    if (this.resizeLeft
+        ||this.resizeRight
+        ||this.resizeTop
+        ||this.resizeBottom) {
+      this.x0 = emojiOnFocus.x;
+      this.y0 = emojiOnFocus.y;
+      this.w0 = emojiOnFocus.w;
+      this.h0 = emojiOnFocus.h;
+      this.resizing = true;
+    }
+    if (this.move) {
+      this.x0 = emojiOnFocus.x;
+      this.y0 = emojiOnFocus.y;
+      this.mouseX0 = mouseX;
+      this.mouseY0 = mouseY;
+      this.moving = true;
+    }
+  })
+  this.canvas.addEventListener('mouseup', function(event) {
+    this.resizing = false;
+    this.moving = false;
+  })
   
   this.draw = function() {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.ctx2.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+
     // DRAW EMOJIS
     for (i in emojiList) {
       this.setBlend(emojiList[i].blendMode);
       emojiList[i].draw();
     }
-    console.log(this.dpr);
 
     // DRAW MARGIN
-    this.ctx.globalCompositeOperation = 'xor';
-
-    this.ctx.fillStyle = 'rgba(250, 250, 250, 0.85)';
+    this.setBlend('xor');
+    this.ctx.fillStyle = 'rgba(240, 240, 240, 0.8)';
     this.ctx.fillRect(0,0,50,640);
     this.ctx.fillRect(50,0,540,50);
     this.ctx.fillRect(50,590,540,50);
@@ -159,15 +386,17 @@ function Canvas() {
     for (i in emojiList) {
       if (emojiList[i].onFocus) {
         var f = emojiList[i];
-        this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.strokeStyle='lime';
-        this.ctx.lineWidth = 5;
-        this.ctx.strokeRect(f.x,f.y,f.w,f.h);
+        this.setBlend('source-over');
+        this.ctx2.strokeStyle='red';
+        this.ctx2.lineWidth = 2;
+        this.ctx2.strokeRect(f.x,f.y,f.w,f.h);
       }
     }
-
   }
+  
 }
+
+
 
 
 
@@ -198,7 +427,6 @@ function LayerPanel() {
     
     var blendModeSelect = document.createElement('div');
     
-    
     var blendModeSelectTag = document.createElement('select');
     for (i in emoji.blendModeList) {
       var thisBlendMode = emoji.blendModeList[i];
@@ -211,7 +439,7 @@ function LayerPanel() {
     blendModeSelect.appendChild(blendModeSelectTag);
     layerDiv.appendChild(blendModeSelect);
     blendModeSelect.classList.add('custom-select');
-    blendModeSelect.style.width='200px';
+    // blendModeSelect.style.width='200px';
 
 
 
@@ -272,8 +500,6 @@ function LayerPanel() {
 
 
 
-
-
     // if empty, go to else, if existing layers, insert on top
     if (container.firstChild) {
       container.insertBefore(layerDiv, container.firstChild);
@@ -292,37 +518,33 @@ function LayerPanel() {
 
 
 
-function Emoji(canvasObj, chr, x, y, w, h) {
+function Emoji(canvasObj, chr) {
   this.chr = chr;
-  this.x = x;
-  this.y = y;
-  this.w = w;
-  this.h = h;
+  this.x = 50;
+  this.y = 50;
+  this.w = 540;
+  this.h = 540;
   this.yoff = -0.075;
 
   this.onFocus;
 
-  var startX;
-  var startY;
-  var pastX = x ;
-  var pastY = y ;
 
   var emoji = this;
 
-  // TURN OF ALL FOCUSES EXCEPT THIS ONE
+  // TURN OFF ALL FOCUSES EXCEPT THIS ONE
   for (i in emojiList) {
     emojiList[i].onFocus = false;
   }
   this.onFocus = true;
+  emojiOnFocus = this;
 
-
-  createDragDiv();
   
 
   this.blendModeList = [
     'source-over',
     'multiply',
-    'overlay'
+    'overlay',
+    'lighten'
   ]
 
   this.blendMode = 'source-over';
@@ -331,53 +553,21 @@ function Emoji(canvasObj, chr, x, y, w, h) {
     this.blendMode = newMode;
   }
 
-  function createDragDiv() {
-    // console.log(this);
-    var dragDiv = document.createElement('div');
-    dragDiv.setAttribute('draggable', 'true');
-    // dragDiv.setAttribute('id', 'test');
-    dragDiv.style.left = pastX + 'px';
-    dragDiv.style.top = pastY + 'px';
-    dragDiv.style.width = emoji.w + 'px';
-    dragDiv.style.height = emoji.h + 'px';
-    console.log(emoji.w);
-
-    dragDiv.addEventListener("dragstart", function(event) {
-      startX = event.clientX;
-      startY = event.clientY;
-      console.log(pastX);
-    }, false);
-
-    dragDiv.addEventListener("drag", function(event) {
-      if (event.clientX == 0 || event.clientY == 0) return; // prevent emoji position returning to zero due to client pos = 0 at drag end
-      emoji.x = pastX + event.clientX - startX;
-      emoji.y = pastY + event.clientY - startY;
-      console.log(emoji.x + ' ' + pastX);
-    }, false);
-
-    dragDiv.addEventListener("dragend", function(event) {
-      // endX = event.clientX;
-      emoji.x = pastX + event.clientX - startX;
-      emoji.y = pastY + event.clientY - startY;
-      dragDiv.style.left = emoji.x + 'px';
-      dragDiv.style.top = emoji.y+ 'px';
-      pastX = emoji.x;
-      pastY = emoji.y;
-      // console.log(pastX);
-    }, false);
-    document.body.appendChild(dragDiv);
-    this.dragDiv = dragDiv;
+  
+  this.dimensionToScale = function(x, y, w, h) {
+    canvasObj.ctx.save();
+    canvasObj.ctx.font = w + "px Times";
+    canvasObj.ctx.translate(x, h*(1+this.yoff) + y);
+    canvasObj.ctx.scale(1, h/w);
+    canvasObj.ctx.strokeText(chr, 0, w/h);
+    canvasObj.ctx.restore();
   }
+  
 
   // draw emoji
   this.draw = function() {
-    // console.log('shit');
-    console.log(this.onFocus);
-    canvasObj.ctx.font = this.h + "px Times";
-    canvasObj.ctx.strokeText(chr, this.x, this.y + this.h * (1+this.yoff));
+    this.dimensionToScale(this.x, this.y, this.w, this.h);
   }
-
-  
 }
 
 
