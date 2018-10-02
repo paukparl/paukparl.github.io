@@ -7,11 +7,6 @@ html, body {
   overflow: hidden;
 }
 
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 canvas {
   position: absolute;
@@ -52,23 +47,53 @@ canvas {
   position: relative;
 }
 
+
+
+
+#canvas-container-tab {
+  position: absolute;
+  top: -30px;
+  height: 30px;
+  width: 100%;
+  background-color: greenyellow;
+}
+
 #canvas-container {
   position: absolute;
-  width: 45vw;
-  height: 45vw;
-  bottom: 0;
-  left: 0;
-  /* width: null; */
-  background-color: red;
-  display: inline-block;
+  width: 640px;
+  height: 640px;
+  bottom: 100px;
+  left: 100px;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+
+
+
+
 
 #emoji-pool {
   position: absolute;
-  bottom: 30vw;
-  right: 0;
-  width: 35vw;
-  height: 15vw;
+  width: 600px;
+  height: 300px;
+  /* bottom: 50vw; */
+  right: 100px;
+}
+
+#emoji-pool-tab {
+  position: relative;
+  height: 30px;
+  width: 100%;
+  background-color: greenyellow;
+}
+
+#emoji-pool-div {
+  position: relative;
+  height: calc(100% - 30px);
+  width: 100%;
   background-color: pink;
   display: flex;
   flex-wrap: wrap;
@@ -76,6 +101,7 @@ canvas {
 }
 
 .emoji-div {
+  position: relative;
   width: 3.5vw;
   height: 3.5vw;
   text-align: center;
@@ -87,6 +113,7 @@ canvas {
 }
 
 .emoji-div p{
+  /* position: absolute; */
   margin: 0;
   line-height: 3.5vw;
   font-size: 2.5vw;
@@ -94,12 +121,30 @@ canvas {
 }
 
 
+
+
+
+
 #layer-panel {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 35vw;
-  height: 30vw;
+  bottom: 10vw;
+  right: 100px;
+  width: 400px;
+  height: 400px;
+}
+
+#layer-panel-tab {
+  position: relative;
+  /* top: -30px; */
+  height: 30px;
+  width: 100%;
+  background-color: greenyellow;
+}
+
+#layer-panel-div {
+  position: relative;
+  height: calc(100% - 30px);
+  width: 100%;
   background-color: yellow;
   overflow: scroll;
 }
@@ -107,13 +152,87 @@ canvas {
 .layer-div {
   position: relative;
   width: 100%;
-  height: 10vw;
-  background-color: cyan;
+  height: 100px;
+  /* background-color: gray; */
   flex-shrink: 0;
+  border: 1px solid red;
 }
 
 .layer-div h1 {
   position: absolute;
-  line-height: 100%;
+  line-height: 100px;
+  /* text-align:  */
+  font-size: 50px;
+  margin: 0;
+}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*the container must be positioned relative:*/
+.custom-select {
+  position: relative;
+  font-family: Arial;
+  width: 200px;
+}
+.custom-select select {
+  display: none; /*hide original SELECT element:*/
+}
+.select-selected {
+  background-color: DodgerBlue;
+}
+/*style the arrow inside the select element:*/
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+/*point the arrow upwards when the select box is open (active):*/
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+/*style the items (options), including the selected item:*/
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+/*style items (options):*/
+.select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+/*hide the items when the select box is closed:*/
+.select-hide {
+  display: none;
+}
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
 }
