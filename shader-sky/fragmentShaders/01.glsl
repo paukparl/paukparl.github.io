@@ -178,14 +178,14 @@ void main( void )
   vec2 uv = ( gl_FragCoord.xy / u_resolution.xy ) * 2.0 - 1.0;
   uv.x *= u_resolution.x / u_resolution.y;
 
-  vec3 cameraPosition = vec3(u_mouse.x* 20.0 - 10.0, 20.0 + sin(u_time)*0.3, u_time );
+  vec3 cameraPosition = vec3(0, 0, 0 );
   // vec3 cameraPosition = vec3(0., 0., -10. );
 
   // We will need to shoot a ray from our camera's position through each pixel.  To do this,
   // we will exploit the uv variable we calculated earlier, which describes the pixel we are
   // currently rendering, and make that our direction vector.
   vec3 cameraDirection = normalize( vec3( uv.x , uv.y, 1.));
-  cameraDirection.xz *= rotate2d(u_mouse.x);
+  cameraDirection.xz *= rotate2d(u_time);
 
   // Now that we have our ray defined,  we need to trace it to see how far the closest point
   // in our world is to this ray.  We will simply shade our scene.
