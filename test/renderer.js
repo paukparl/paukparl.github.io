@@ -2,6 +2,7 @@ let copyVideo = false;
 const canvas = document.getElementById("c");
 const gl = canvas.getContext("webgl");
 const video = document.getElementById('video');
+let videoWidth, videoHeight;
 if (!gl) {
   console.log('NO WEBGL?!')
 }
@@ -57,8 +58,8 @@ makeRequest('GET', 'vertexShader.glsl')
 .then(function (data) {
   // When resolved, save the fragment shader in the global variable.
   fragmentShaderSource = data;
-
-  main();
+  loadVideo();
+  
   
 }) // If there is error in loading above files.
 .catch(function (err) {
@@ -69,20 +70,24 @@ makeRequest('GET', 'vertexShader.glsl')
 function loadVideo() {
   navigator.mediaDevices.getUserMedia({ audio: false, video: true })
   .then(function(stream) {
-    console.log(stream.getVideoTracks());
     video.srcObject = stream;
     video.play();
+    
     video.addEventListener('playing', function() {
       playing = true;
+      videoWidth = video.videoWidth;
+      videoHeight = video.videoHeight;
+      main();
       if (playing && timeupdate) {
         copyVideo = true;
       }
+      
    }, true);
  
    video.addEventListener('timeupdate', function() {
       timeupdate = true;
       if (playing && timeupdate) {
-        copyVideo = true;
+        copyVideo = true;        
       }
    }, true);
   })
@@ -98,10 +103,14 @@ function loadVideo() {
 
 function main() {
   
-  loadVideo();
+  
   var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
   var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
   createProgram(gl, vertexShader, fragmentShader);
+
+
+  resizeCanvasToDisplaySize(gl.canvas);
+
 
 
 
@@ -111,19 +120,48 @@ function main() {
   // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Set a rectangle the same size as the image.
-  var positions = [
-    -1.0, -1.0,
-     1.0, -1.0,
-    -1.0,  1.0,
-     1.0, -1.0,
-    -1.0,  1.0,
-    1.0,  1.0,
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  // setRectangle(gl, (video.videoWidth/video.videoHeight)/, -1, 2,2);
+  // setRectangle(gl, 0, 0, canvas.width, canvas.height);
+  // setRectangle(gl, 0, 0, canvas.clientWidth, canvas.clientHeight);
+  // console.log(video.videoWidth/video.videoHeight);
+  // console.log(canvas.width/canvas.height);
+  
+  // let stretchFactor = canvas.width/canvas.height - video.videoWidth/video.videoHeight;
+
+  let canvasRatio = canvas.width/canvas.height;
+  let videoRatio = video.videoWidth/video.videoHeight;
+
+  if (canvasRatio < videoRatio) {
+    var stretch = (videoRatio-canvasRatio)/2/canvasRatio;
+    console.log(stretch*2 + canvasRatio + '   ' + videoRatio);
+    var positions = [
+      0-stretch, 0,
+      1+stretch, 0,
+      0-stretch, 1,
+      1+stretch, 0,
+      0-stretch, 1,
+      1+stretch, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  } else {
+    var stretch = (canvasRatio-videoRatio)/2/videoRatio;
+    console.log(stretch*2 + canvasRatio + '   ' + videoRatio);
+    var positions = [
+      0, 0-stretch,
+      1, 0-stretch,
+      0, 1+stretch,
+      1, 0-stretch,
+      0, 1+stretch,
+      1, 1+stretch,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  }
+
 
   texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
   texcoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+  // setRectangle(gl, 0, 0, 1, 1);
   var positions = [
     1.0, 1.0,
     0.0, 1.0,
@@ -131,13 +169,13 @@ function main() {
     0.0, 1.0,
     1.0, 0.0,
     0.0, 0.0,
-    // 0.0, 0.0, 
-    // 1.0,  0.0,
-    // 0.0,  1.0,
+  //   // 0.0, 0.0, 
+  //   // 1.0,  0.0,
+  //   // 0.0,  1.0,
     
-    // 1.0,  0.0,
-    // 0.0,  1.0,
-    // 1.0,  1.0,
+  //   // 1.0,  0.0,
+  //   // 0.0,  1.0,
+  //   // 1.0,  1.0,
       
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -303,7 +341,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
 }
 
 function resizeCanvasToDisplaySize(canvas) {
-  
+  // console.log(canvas.width + "  " + canvas.height);
   // Get real-CSS pixel ratio in case of Retina display
   var realToCSSPixels = 0.2;
   var displayWidth  = Math.floor(canvas.clientWidth * realToCSSPixels);
@@ -311,7 +349,7 @@ function resizeCanvasToDisplaySize(canvas) {
   
   if (canvas.width !== displayWidth ||
       canvas.height !== displayHeight) {
-    console.log(canvas.width);
+    
     canvas.width  = displayWidth;
     canvas.height = displayHeight;
 
