@@ -1,21 +1,29 @@
+
+
 /*    
     1. SOME PREPARATIONS
     Before the actual WebGL, here are some preparations.
 */
 
+
 // Get WebGL context.
 // A context is basically an object that holds all of WebGL.
 const canvas = document.getElementById("c");
 const gl = canvas.getContext("webgl");
+const video = document.getElementById('video');
 if (!gl) {
   console.log('NO WEBGL?!')
 }
 
 // Some global variables
 let vertexShaderSource, fragmentShaderSource;
-let program, positionAttributeLocation;
+let program, positionAttributeLocation, texcoordAttributeLocation;
+let positionBuffer, texcoordBuffer;
 let resolutionUniformLocation, timeUniformLocation, mouseUniformLocation;
 let mouseX, mouseY; mouseX=mouseY=0;
+let copyVideo = false;
+let playing, timeupdate;
+let texture;
 
 // Update global variables mouseX and mouseY upon mouse move,
 // so they can later be used by our fragment shader as u_mouse uniforms.
@@ -109,6 +117,45 @@ makeRequest('GET', 'vertexShader.glsl')
 
 
 
+
+function loadVideo() {
+  navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+  .then(function(stream) {
+    console.log(stream.getVideoTracks());
+    video.srcObject = stream;
+    video.play();
+    video.addEventListener('playing', function() {
+      playing = true;
+      if (playing && timeupdate) {
+        copyVideo = true;
+      }
+   }, true);
+ 
+   video.addEventListener('timeupdate', function() {
+      timeupdate = true;
+      if (playing && timeupdate) {
+        copyVideo = true;
+      }
+   }, true);
+  })
+  .catch(function(err) {
+    console.log("An error occurred! " + err);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*    
     A. SETUP AND LOOP DEFINED
     Here, you start to see the functions that make up setup() and renderLoop().
@@ -116,6 +163,11 @@ makeRequest('GET', 'vertexShader.glsl')
 
 
 function setup() {
+
+  loadVideo();
+  
+
+
 
   // Create vertex & fragment shaders from the source files.
   var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
@@ -145,6 +197,11 @@ function renderLoop(timeStamp) {
   // So renderLoop() loops recursively.
   window.requestAnimationFrame(renderLoop);
 }
+
+
+
+
+
 
 
 
@@ -193,10 +250,32 @@ function createProgram(gl, vertexShader, fragmentShader) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function setBuffer() {
 
+  // get attribute locations from 
+  positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  
   // First, create a buffer.
-  var positionBuffer = gl.createBuffer();
+  positionBuffer = gl.createBuffer();
 
   // gl.ARRAY_BUFFER is a global bind point (kind of like an internal global variable inside WebGL.)
   // After you bind a resource to the bind point, other functions can refer to it through the bind point.
@@ -215,14 +294,54 @@ function setBuffer() {
   ];
   // gl.STATIC_DRAW tells WebGL we are not likely to change this data much.
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-  positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  
+
+  
+  texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoords");
+
+  // provide texture coordinates for the rectangle.
+  texcoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+  // Set Texcoords.
+  var positions = [
+    -1, -1,
+     1,  1,
+    -1,  1,
+     1,  1,
+     1, -1,
+    -1, -1,
+  ];
+  // gl.STATIC_DRAW tells WebGL we are not likely to change this data much.
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  
+
+
+  // Create a texture.
+  texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  // Fill the texture with a 1x1 blue pixel.
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                new Uint8Array([0, 0, 255, 255]));
+                
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_BORDER);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_BORDER);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Asynchronously load an image
+  var image = new Image();
+  image.src = "tex.png";
+  image.addEventListener('load', function() {
+    // Now that the image has loaded make copy it to the texture.
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+  });
 }
 
 
 function resizeCanvasToDisplaySize(canvas) {
   
   // Get real-CSS pixel ratio in case of Retina display
-  var realToCSSPixels = 0.1;
+  var realToCSSPixels = 1;
   var displayWidth  = Math.floor(canvas.clientWidth * realToCSSPixels);
   var displayHeight = Math.floor(canvas.clientHeight * realToCSSPixels);
   
@@ -250,6 +369,7 @@ function setUniforms(timeStamp) {
   resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
   timeUniformLocation = gl.getUniformLocation(program, "u_time");
   mouseUniformLocation = gl.getUniformLocation(program, "u_mouse");
+  textureUniformLocation = gl.getUniformLocation(program, "u_mouse");
 
   // Set time uniform
   gl.uniform1f(timeUniformLocation, timeStamp/1000.0);
@@ -257,8 +377,6 @@ function setUniforms(timeStamp) {
   gl.uniform2f(mouseUniformLocation, mouseX/canvas.width, 1-mouseY/canvas.height);
   // Set the resolution
   gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
-
-  gl.enableVertexAttribArray(positionAttributeLocation);
 }
 
 
@@ -267,7 +385,12 @@ function draw() {
   // Clear the canvas
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
+
+  gl.enableVertexAttribArray(positionAttributeLocation);
   
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  
+
   // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
   var size = 2;          // 2 components per iteration
   var type = gl.FLOAT;   // the data is 32bit floats
@@ -277,6 +400,36 @@ function draw() {
   gl.vertexAttribPointer(
     positionAttributeLocation, size, type, normalize, stride, offset);
   
+  
+
+
+  // Turn on the teccord attribute
+  gl.enableVertexAttribArray(texcoordAttributeLocation);
+  // Bind the position buffer.
+  gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+
+  // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  var size = 2;          // 2 components per iteration
+  var type = gl.FLOAT;   // the data is 32bit floats
+  var normalize = false; // don't normalize the data
+  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+  var offset = 0;        // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+    texcoordAttributeLocation, size, type, normalize, stride, offset);
+
+  // if (copyVideo) {
+  //   const level = 0;
+  //   const internalFormat = gl.RGBA;
+  //   const srcFormat = gl.RGBA;
+  //   const srcType = gl.UNSIGNED_BYTE;
+  //   gl.bindTexture(gl.TEXTURE_2D, texture);
+  //   gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+  //                 srcFormat, srcType, video);
+  // }
+
+
+
+    
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
   var count = 6;
