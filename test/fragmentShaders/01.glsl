@@ -80,9 +80,11 @@ void main( void )
     backdrop = vec3(1.);
   }
   vec4 finalColor = texture2D(u_texture, v_texcoord);
-  if (finalColor.b > 0.8) {
+  if (finalColor.b > 0.75) {
     finalColor = vec4(backdrop, 1.0);
-  } 
+  } else {
+    finalColor = vec4(vec3(finalColor.r),1.);
+  }
   
   gl_FragColor = finalColor;
   // gl_FragColor = vec4( finalColor, 1.0 );
