@@ -1,21 +1,99 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <video autoplay playsinline class="handsome"></video>
+  <canvas id="paint"></canvas>
+  <button onClick="takePhoto()">📸</button>
+  <div class="strip"></div>
+  <script src="scripts.js"></script>
   <style>
     body {
+      font-family: sans-serif;
+      background: #ffc600;
       margin: 0;
+      text-align: center;
     }
-    canvas {
-      width: 100vw;
-      height: 100vh;
+    video {
+      width: 200px;
+      margin: 20px auto;
+      transform: rotate(10deg);
+      border: 10px solid white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2)
+    }
+    button {
       display: block;
+      background: black;
+      font-size: 50px;
+      padding: 10px;
+      color: white;
+      width: 100%;
+      border: 0;
+    }
+    #paint {
+      display: none;
+    }
+    .strip {
+      width: 100%;
+      width: 100%;
+      display: flex;
+      overflow-x: scroll;
+      -webkit-overflow-scrolling: touch;
+    }
+    .strip img {
+      width: 100px;
+      border: 2px solid white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2)
+    }
+    .strip a {
+      transition: all 0.3s;
+    }
+    .strip a:nth-child(2n+1) {
+      transform: rotate(10deg)
+    }
+    .strip a:nth-child(2n+2) {
+      transform: rotate(-10deg)
     }
   </style>
-</head>
-<html>
-<body>
-  <video id="video">Video stream not available.</video>
-  <canvas id="c"></canvas>
-  <script src="renderer.js"></script>
 </body>
+<script>
+const video = document.querySelector('.handsome');
+const canvas = document.querySelector('#paint');
+const ctx = canvas.getContext('2d');
+const strip = document.querySelector('.strip');
+
+async function go() {
+  // first ask for get user media
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+}
+
+function takePhoto() {
+  console.log('Taking photo!');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+  const data = canvas.toDataURL('image/jpeg');
+  const link = document.createElement('a');
+  // link.href = data;
+  link.setAttribute('download', 'handsome');
+  link.innerHTML = `<img src="${data}" alt="Handsome Man" />`;
+  strip.insertBefore(link, strip.firsChild);
+}
+
+go().catch(err => {
+  alert(err.message);
+});
+
+</script>
+
+
+
 </html>
