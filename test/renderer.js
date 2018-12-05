@@ -71,7 +71,7 @@ function loadVideo() {
   .then(function(stream) {
     console.log(stream.getVideoTracks());
     video.srcObject = stream;
-    // video.play();
+    video.play();
     video.addEventListener('playing', function() {
       playing = true;
       if (playing && timeupdate) {
