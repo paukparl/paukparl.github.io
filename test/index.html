@@ -9,17 +9,20 @@
       width: 100vw;
       height: 100vh;
       display: block;
+      z-index: 10;
     }
     video {
       /* visibility: hidden; */
+      width: 1;
       position: absolute;
-      top: 100vh;
+      /* top: 100vh; */
+      z-index: 0;
     }
   </style>
 </head>
 <html>
 <body>
-  <video autoplay playsinline id="video">Video stream not available.</video>
+  <video width="1" autoplay playsinline id="video">Video stream not available.</video>
   <canvas id="c"></canvas>
   <script src="renderer.js"></script>
 </body>
