@@ -81,7 +81,7 @@ void main( void )
   // }
   vec4 finalColor = texture2D(u_texture, v_texcoord);
   if (finalColor.r < 0.2) {
-    // finalColor.a = 0.;
+    finalColor.a = 0.;
   }
   
   gl_FragColor = finalColor;
