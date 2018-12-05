@@ -72,14 +72,18 @@ void main( void )
   // vec3 pointOnSurface;
   // float distanceToClosestPointInScene = trace( cameraPosition, cameraDirection, pointOnSurface );
 
-  vec3 finalColor = vec3(0.0);
+  // vec3 finalColor = vec3(0.0);
   // if( distanceToClosestPointInScene > 0.0 )
   // {
   //     finalColor = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05));
   // } else {
   //   finalColor = vec3(1.);
   // }
+  vec4 finalColor = texture2D(u_texture, v_texcoord);
+  if (finalColor.r < 0.2) {
+    finalColor.a = 0.;
+  }
   
-  gl_FragColor = texture2D(u_texture, v_texcoord);
+  gl_FragColor = finalColor;
   // gl_FragColor = vec4( finalColor, 1.0 );
 }
