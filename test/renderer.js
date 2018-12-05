@@ -305,7 +305,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
 function resizeCanvasToDisplaySize(canvas) {
   
   // Get real-CSS pixel ratio in case of Retina display
-  var realToCSSPixels = 1.;
+  var realToCSSPixels = 0.2;
   var displayWidth  = Math.floor(canvas.clientWidth * realToCSSPixels);
   var displayHeight = Math.floor(canvas.clientHeight * realToCSSPixels);
   
