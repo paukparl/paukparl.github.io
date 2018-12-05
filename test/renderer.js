@@ -68,7 +68,7 @@ makeRequest('GET', 'vertexShader.glsl')
 
 
 function loadVideo() {
-  navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: "environment" } })
+  navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { exact: "environment" } } })
   .then(function(stream) {
     console.log(stream.getVideoTracks())
     video.srcObject = stream;
