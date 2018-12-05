@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>three.js webgl - marching cubes</title>
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+		  color: #fff;
+		  font-family: Monospace;
+		  font-size: 13px;
+		  text-align: center;
+
+		  background-color: #000;
+		  margin: 0px;
+		  overflow: hidden;
+		}
+
+		#info {
+		  color: #ffffff;
+		  position: absolute;
+		  top: 0px;
+		  width: 100%;
+		  padding: 5px;
+		}
+
+		a {
+		  color: gold;
+		}
+
+		#webglmessage {
+		  font-family: monospace;
+		  font-size: 13px;
+
+		  text-align: center;
+		  background: rgb(0, 0, 50);
+		  color: #fff;
+		  padding: 1em;
+
+		  width: 475px;
+		  margin: 5em auto 0;
+
+		  display: none;
+		}
+	</style>
+</head>
+
+<body>
+
+  <div id="container"></div>
+  <script src="../src/threejs/three.js"></script>
+  <script src="../src/threejs/WebGL.js"></script>
+  <script src="../src/threejs/MarchingCubes.js"></script>
+  
+  
+	<script>
+		if ( WEBGL.isWebGLAvailable() === false ) {
+
+			document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+
+		}
+
+		var MARGIN = 0;
+
+		var SCREEN_WIDTH = window.innerWidth;
+		var SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+
+		var container, stats;
+
+		var camera, scene, renderer;
+
+		var mesh, texture, geometry, materials, material, current_material;
+
+		var light, pointLight, ambientLight;
+
+		var effect, resolution, numBlobs;
+
+		var composer, effectFXAA, hblur, vblur;
+
+		var effectController;
+
+		var controls;
+
+		var time = 0;
+    var clock = new THREE.Clock();
+    
+    var video;
+    // let videoFeed;
+    let poseNet;
+    let poses = [];
+    
+    var noseBuffer = [];
+    var leyeBuffer = [];
+    var reyeBuffer = [];
+    
+    var mouseX = 0, mouseY = 0;
+    var windowHalfX = window.innerWidth / 2;
+    var windowHalfY = window.innerHeight / 2;
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+		init();
+		animate();
+
+		function init() {
+
+			container = document.getElementById( 'container' );
+
+			// CAMERA
+
+			camera = new THREE.PerspectiveCamera( 45, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
+      camera.position.set( 500, 1600, 500 );
+
+      camera.lookAt(new THREE.Vector3(500, 0, 500));
+      camera.rotateZ(Math.PI);
+      
+
+			// SCENE
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x141414 );
+
+			// LIGHTS
+
+			light = new THREE.DirectionalLight( 0x993300 );
+			light.position.set( 1, 1, 1 );
+			scene.add( light );
+
+			ambientLight = new THREE.AmbientLight( 0x225588 );
+			scene.add( ambientLight );
+
+			// MATERIALS
+
+			// materials = generateMaterials();
+			current_material = "shiny";
+
+			// MARCHING CUBES
+
+			resolution = 28;
+			numBlobs = 10;
+
+      var texture = new THREE.TextureLoader().load( "test7.png" );
+
+      var videoMaterial = new THREE.MeshPhongMaterial( { color:0xffffff, map: texture} );
+
+
+
+
+
+			effect = new THREE.MarchingCubes( resolution, videoMaterial, true, true );
+			effect.position.set( 0, 0, 0 );
+			effect.scale.set( 1000, 1500, 1000 );
+
+			effect.enableColors = false;
+
+			scene.add( effect );
+
+
+			// RENDERER
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+			renderer.domElement.style.position = "absolute";
+			renderer.domElement.style.top = MARGIN + "px";
+			renderer.domElement.style.left = "0px";
+
+			container.appendChild( renderer.domElement );
+
+			//
+
+			renderer.gammaInput = true;
+			renderer.gammaOutput = true;
+
+			// COMPOSER
+
+			renderer.autoClear = false;
+
+			var renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false };
+			var renderTarget = new THREE.WebGLRenderTarget( SCREEN_WIDTH, SCREEN_HEIGHT, renderTargetParameters );
+
+			// GUI
+
+			setupGui();
+
+			// EVENTS
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+		}
+
+		//
+
+		function onWindowResize( event ) {
+
+			SCREEN_WIDTH = window.innerWidth;
+			SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+
+			camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+			composer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+			hblur.uniforms[ 'h' ].value = 4 / SCREEN_WIDTH;
+			vblur.uniforms[ 'v' ].value = 4 / SCREEN_HEIGHT;
+
+			effectFXAA.uniforms[ 'resolution' ].value.set( 1 / SCREEN_WIDTH, 1 / SCREEN_HEIGHT );
+
+		}
+
+
+		//
+
+		function setupGui() {
+
+			var createHandler = function( id ) {
+
+				return function() {
+
+					var mat_old = materials[ current_material ];
+					mat_old.h = m_h.getValue();
+					mat_old.s = m_s.getValue();
+					mat_old.l = m_l.getValue();
+
+					current_material = id;
+
+					var mat = materials[ id ];
+					effect.material = mat.m;
+
+					m_h.setValue( mat.h );
+					m_s.setValue( mat.s );
+					m_l.setValue( mat.l );
+
+					effect.enableUvs = (current_material === "textured") ? true : false;
+					effect.enableColors = (current_material === "colors") ? true : false;
+
+				};
+
+			};
+
+			effectController = {
+
+        material: "shiny",
+
+        speed: 8.0,
+        numBlobs: 10,
+        resolution: 64,
+        isolation: 100,
+
+        floor: false,
+        wallx: false,
+        wallz: false,
+
+        hue: 0.0,
+        saturation: 0.0,
+        lightness: 1,
+
+        lhue: 0.04,
+        lsaturation: 0.0,
+        llightness: 0.5,
+
+        lx: 1,
+        ly: 1,
+        lz: 1.0,
+
+        postprocessing: false,
+
+        dummy: function() {
+        }
+
+			};
+		}
+
+		// this controls content of marching cubes voxel field
+
+		function updateCubes( object, time, numblobs, floor, wallx, wallz) {
+
+			object.reset();
+
+			// fill the field with some metaballs
+
+			var i, ballx, bally, ballz, subtract, strength;
+
+			subtract = 40;
+			strength = 1.2 / ( ( Math.sqrt( numblobs ) - 1 ) / 4 + 1 );
+
+			// for ( i = 0; i < numblobs; i ++ ) {
+
+      
+      // bally = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8; // dip into the floor
+      // ballx = nose.x/300 + 0.25;
+      // ballz = 1.25-nose.y/300;
+      // ballx = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8;
+      // ballz = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8;
+      // object.addBall(ballx, bally, ballz, strength, subtract);
+        
+      // bally = Math.abs( Math.cos( 1.15 * time * Math.cos( 1.22 + 0.1424*2 ) ) ) * .8;
+      // ballx = leye.x/300 + 0.25;
+      // ballz = 1.25-leye.y/300;
+      // ballx = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8;
+      // ballz = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8;
+      // object.addBall(ballx, bally, ballz, strength, subtract);
+
+      // bally = Math.abs( Math.cos( 1.3 * time * Math.cos( 1.22 + 0.1424*3) ) ) * .8; // dip into the floor
+      // ballx = reye.x/300 + 0.25;
+      // ballz = 1.25-reye.y/300;
+      // ballx = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8;
+      // ballz = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8;
+      // object.addBall(ballx, bally, ballz, strength, subtract);
+
+      bally = Math.abs( Math.cos( 1.32 * time * Math.cos( 1.22 + 0.1424*3) ) ) * .8; // dip into the floor
+      // bally = 0.5;
+      ballx = 0.75 + Math.cos( time/7 ) * .1; // dip into the floor
+      ballz = 0.75 + Math.sin( time/7 ) * .1;
+      
+      object.addBall(ballx, bally, ballz, strength, subtract);
+
+      bally = Math.abs( Math.cos( 1.5 * time * Math.cos( 1.22 + 0.1424*3) ) ) * .8; // dip into the floor
+      // bally = 0.5;
+      ballx = 0.75 + Math.cos( time/5 ) * .1; // dip into the floor
+      ballz = 0.75 + Math.sin( time/4 ) * .1;
+      
+      object.addBall(ballx, bally, ballz, strength, subtract);
+        
+      bally = Math.abs( Math.cos( 1.7 * time * Math.cos( 1.22 + 0.1424*3) ) ) * .8; // dip into the floor
+      // bally = 0.5;
+      ballx = 0.75 + Math.cos( time/4 ) * .1; // dip into the floor
+      ballz = 0.75 + Math.sin( time/3 ) * .1;
+      
+      object.addBall(ballx, bally, ballz, strength, subtract);
+        
+
+			// }
+
+			if ( floor ) object.addPlaneY( 2, 12 );
+			if ( wallz ) object.addPlaneZ( 2, 12 );
+			if ( wallx ) object.addPlaneX( 2, 12 );
+
+		}
+
+		//
+
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			render();
+			// stats.update();
+
+		}
+
+    function onDocumentMouseMove(event) {
+      mouseX = ( event.clientX - windowHalfX ) ;
+      mouseY = ( event.clientY - windowHalfY ) ;
+    }
+		function render() {
+      // camera.position.x += ( mouseX - camera.position.x ) * .1;
+      // camera.position.z += ( mouseY - camera.position.z ) * .1;
+      // camera.lookAt(new THREE.Vector3(500, 0, 500));
+      // camera.position.y += ( - mouseY - camera.position.y ) * .05;
+      // console.log(video);
+      // var v = poseNet.singlePose();
+      
+      
+      function read_X () {
+          data_X.delete_first_element();
+          data_X.push(get_sensor_data_X());
+          return average(data_X);
+      }
+
+
+
+      // console.log(nose.x);
+			var delta = clock.getDelta();
+
+			time += delta * effectController.speed * 0.5;
+
+			// marching cubes
+
+			if ( effectController.resolution !== resolution ) {
+
+				resolution = effectController.resolution;
+				effect.init( Math.floor( resolution ) );
+
+			}
+
+			if ( effectController.isolation !== effect.isolation ) {
+
+				effect.isolation = effectController.isolation;
+
+			}
+
+			updateCubes( effect, time, 1, effectController.floor, effectController.wallx, effectController.wallz );
+
+			// materials
+
+			if ( effect.material instanceof THREE.ShaderMaterial ) {
+        // effect.material.uniforms.uBaseColor.value.setHSL( effectController.hue, effectController.saturation, effectController.lightness );
+			} else {
+        // effect.material.color.setHSL( effectController.hue, effectController.saturation, effectController.lightness );
+        // console.log(effect.material);
+			}
+
+			// lights
+
+			light.position.set( effectController.lx, effectController.ly, effectController.lz );
+			light.position.normalize();
+
+			// pointLight.color.setHSL( effectController.lhue, effectController.lsaturation, effectController.llightness );
+
+			// render
+
+      renderer.clear();
+      renderer.render( scene, camera );
+
+
+		}
+
+</script>
+
+</body>
+</html>

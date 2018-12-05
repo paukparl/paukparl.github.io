@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+  <script src="/js/rita-full.js"></script>
+</head>
+<body>
+  hhihihi
+<script>
+  // Daniel Shiffman
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/VaAoIaZ3YKs
+
+var lines, markov, data1, data2, x = 160, y = 240;
+
+adv = ['conveniently', 'quickly', 'certainly', 'effortlessly', 'immediately', 'completely']
+adj = ['convenient', 'undisputed', 'quick', 'secret', 'true', 'groundbreaking', 'revolutionary']
+obj = ['success', 'a successful career', 'true happiness', 'a new life', 'a healthier lifestyle']
+v = ['succeed', 'win', 'challenge yourself', 'be successful', 'achieve success', 'get ahead in life', 'be famous', 'be happy', 'lose weight', 'make your dreams come true', 'plan ahead', 'make more friends']
+    
+
+function preload() {
+    firstNames = loadJSON('/corpora-master/data/humans/firstNames.json');
+    lastNames = loadJSON('/corpora-master/data/humans/authors.json');
+    common = loadJSON('/corpora-master/data/words/common.json');
+    adverbs = loadJSON('/corpora-master/data/words/adverbs.json');
+    adjectives = loadJSON('/corpora-master/data/words/encouraging_words.json');
+    newspapers = loadJSON('/corpora-master/data/corporations/newspapers.json');
+}
+
+
+
+function setup() {
+    console.log(RiTa.isNoun('pick'))
+    result = "click to generate"
+    createCanvas(400,400);
+    background(250);
+    x = 100;
+    y=100;
+    text(result, x,y, 400, 400);
+    n = 0;
+	
+    rg = new RiGrammar();
+
+    firstNames = firstNames['firstNames'];
+    lastNames = lastNames['authors'];
+    common = common['commonWords'];
+    adverbs = adverbs['adverbs'];
+    adjectives = adjectives['encouraging_words'];
+    newspapers = newspapers['newspapers'];  
+}
+function mousePressed(){
+    
+    genAuthor();
+    n++;
+
+}
+
+function genTitle() {
+    var temp = common[floor(random(common.length))];
+    if (RiTa.isNoun(temp) || RiTa.isAdjective(temp) || RiTa.isAdverb(temp)
+        || !RiTa.isVerb(temp) || temp.length >7) return genTitle();
+    else return temp;
+}
+
+function randomDraw(array) {
+    return array[floor(random(array.length))];
+}
+
+function genSubtitle() {
+    
+    temp = random(10);
+    str;
+    if (temp<2.3) str = 'How to ' + randomDraw(adv) + ' ' + randomDraw(v) + ' and ' + randomDraw(v);
+    else if (temp<4.6) str = 'A ' + floor(random(12)+3) + '-step guide to ' + randomDraw(obj);
+    else if (temp<6.6) str = floor(random(9)+3) + ' ways to ' + randomDraw(adv) + ' ' + randomDraw(v);
+    else if (temp<8.6) str = 'A ' + randomDraw(adj) + ' guide on how to ' + randomDraw(v);
+    else str = 'If only I had known then these ' + floor(random(12)+3) + ' facts of life';
+    
+    return str;
+}
+
+function uppercase(string) 
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function genAuthor() {
+        gen = {};
+        gen['books'] = [];
+        gen['author'] = firstNames[floor(random(firstNames.length))] 
+                + ' ' + lastNames[floor(random(lastNames.length))];
+
+        for (let i=0; i<8; i++) {
+            book = {};
+            book['title'] = genTitle();
+            book['subtitle'] = genSubtitle();
+
+            book['quotes'] = [];
+            book['reviews'] = [];
+            for (let j=0; j<5; j++) {
+            review = {}
+            temp = random(4);
+            var reviewString;
+            if (temp<1.2) reviewString = adverbs[floor(random(adjectives.length))] + ' ' + adjectives[floor(random(adjectives.length))] + ' and ' + adjectives[floor(random(adjectives.length))] +'.';
+            else if (temp<2.0) reviewString = adverbs[floor(random(adjectives.length))] + ' ' + adjectives[floor(random(adjectives.length))] + ' but ' + adjectives[floor(random(adjectives.length))] +'.';
+            else if (temp<2.8) reviewString = adverbs[floor(random(adjectives.length))] + ' ' + adjectives[floor(random(adjectives.length))] +'!';
+            else if (temp<3.5) reviewString = adverbs[floor(random(adjectives.length))] + ' ' + adjectives[floor(random(adjectives.length))] +'.';
+            else reviewString = adjectives[floor(random(adjectives.length))] + '...'
+            review['text'] = uppercase(reviewString);
+            review['by'] = newspapers[floor(random(8, newspapers.length))];
+            book['reviews'].push(review);
+            }
+
+            book['price'] = '$' + floor(random(7, 11)) + '.50' // 6 <> 10
+            gen['books'].push(book);
+        }
+        saveJSON(gen, 'book'+ n +'.json');
+}
+
+</script>
+</body>
+</html>

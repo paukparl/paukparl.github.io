@@ -156,7 +156,6 @@
 			effect.position.set( 0, 0, 0 );
 			effect.scale.set( 1000, 1500, 1000 );
 
-			effect.enableUvs = false;
 			effect.enableColors = false;
 
 			scene.add( effect );
@@ -569,23 +568,25 @@
 
       
       bally = Math.abs( Math.cos( 1 * time * Math.cos( 1.22 + 0.1424 ) ) ) * .8; // dip into the floor
-      
-
+      bally = 0.5;
       ballx = nose.x/300 + 0.25;
       ballz = 1.25-nose.y/300;
       object.addBall(ballx, bally, ballz, strength, subtract);
         
       bally = Math.abs( Math.cos( 1.15 * time * Math.cos( 1.22 + 0.1424*2 ) ) ) * .8;
+      bally = 0.5;
       ballx = leye.x/300 + 0.25;
       ballz = 1.25-leye.y/300;
       object.addBall(ballx, bally, ballz, strength, subtract);
 
       bally = Math.abs( Math.cos( 1.3 * time * Math.cos( 1.22 + 0.1424*3) ) ) * .8; // dip into the floor
+      bally = 0.5;
       ballx = reye.x/300 + 0.25;
       ballz = 1.25-reye.y/300;
       object.addBall(ballx, bally, ballz, strength, subtract);
 
       bally = Math.abs( Math.cos( 1.32 * time * Math.cos( 1.22 + 0.1424*3) ) ) * .8; // dip into the floor
+      // bally = 0.5;
       ballx = 0.75 + Math.cos( time/7 ) * .1; // dip into the floor
       ballz = 0.75 + Math.sin( time/7 ) * .1;
       object.addBall(ballx, bally, ballz, strength, subtract);
