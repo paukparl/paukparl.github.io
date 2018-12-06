@@ -102,12 +102,13 @@ function loadVideo() {
 
 
 function handleOrientation(event) {
-  var absolute = event.absolute;
   var alpha    = event.alpha;
   var beta     = event.beta;
   var gamma    = event.gamma;
-  document.getElementById('log').innerHTML = absolute;
-  console.log(event);
+  document.getElementById('alpha').innerHTML = alpha;
+  document.getElementById('beta').innerHTML = beta;
+  document.getElementById('gamma').innerHTML = gamma;
+  // console.log(event);
 }
 
 
@@ -173,7 +174,7 @@ function main() {
   texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
   texcoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-  // setRectangle(gl, 0, 0, 1, 1);
+  // IF CAMERA FRONT-FACING
   var positions = [
     0.0, 1.0,
     1.0, 1.0,
@@ -231,7 +232,7 @@ function main() {
     gl.uniform1i(textureUniformLocation, 0);
 
 
-    document.getElementById('mouseX').innerHTML = mouseX;
+    // document.getElementById('mouseX').innerHTML = mouseX;
 
     // Clear the canvas
     gl.clearColor(0, 0, 0, 0);
