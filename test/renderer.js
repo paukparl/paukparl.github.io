@@ -68,7 +68,8 @@ makeRequest('GET', 'vertexShader.glsl')
 
 
 function loadVideo() {
-  navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { exact: "environment" } } })
+  // navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { exact: "environment" } } })
+  navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode:  "environment"  } })
   .then(function(stream) {
     console.log(stream.getVideoTracks())
     video.srcObject = stream;
@@ -78,6 +79,7 @@ function loadVideo() {
       playing = true;
       videoWidth = video.videoWidth;
       videoHeight = video.videoHeight;
+      window.addEventListener("deviceorientation", handleOrientation, true);
       main();
       if (playing && timeupdate) {
         copyVideo = true;
@@ -98,6 +100,15 @@ function loadVideo() {
 }
 
 
+
+function handleOrientation(event) {
+  var absolute = event.absolute;
+  var alpha    = event.alpha;
+  var beta     = event.beta;
+  var gamma    = event.gamma;
+  document.getElementById('log').innerHTML = absolute;
+  console.log(event);
+}
 
 
 
@@ -170,13 +181,6 @@ function main() {
     0.0, 1.0,
     1.0, 0.0,
     0.0, 0.0,
-  //   // 0.0, 0.0, 
-  //   // 1.0,  0.0,
-  //   // 0.0,  1.0,
-    
-  //   // 1.0,  0.0,
-  //   // 0.0,  1.0,
-  //   // 1.0,  1.0,
       
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -227,6 +231,7 @@ function main() {
     gl.uniform1i(textureUniformLocation, 0);
 
 
+    document.getElementById('mouseX').innerHTML = mouseX;
 
     // Clear the canvas
     gl.clearColor(0, 0, 0, 0);
@@ -293,7 +298,6 @@ function main() {
 
 
 
-
 function setRectangle(gl, x, y, width, height) {
   var x1 = x;
   var x2 = x + width;
@@ -344,7 +348,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
 function resizeCanvasToDisplaySize(canvas) {
   // console.log(canvas.width + "  " + canvas.height);
   // Get real-CSS pixel ratio in case of Retina display
-  var realToCSSPixels = 0.2;
+  var realToCSSPixels = 0.4;
   var displayWidth  = Math.floor(canvas.clientWidth * realToCSSPixels);
   var displayHeight = Math.floor(canvas.clientHeight * realToCSSPixels);
   

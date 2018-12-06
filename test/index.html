@@ -10,6 +10,8 @@
       height: 100vh;
       display: block;
       z-index: 10;
+      position:absolute;
+      top: 0;
     }
     video {
       /* visibility: hidden; */
@@ -18,10 +20,17 @@
       /* top: 100vh; */
       z-index: 0;
     }
+    h1 {
+      z-index: 11;
+      color: white;
+      position: relative;
+    }
   </style>
 </head>
 <html>
 <body>
+  <h1 id="mouseX"></h1>
+  <h1 id="log"></h1>
   <video width="30" autoplay playsinline id="video">Video stream not available.</video>
   <canvas id="c"></canvas>
   <script src="renderer.js"></script>
