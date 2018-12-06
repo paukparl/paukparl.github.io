@@ -105,9 +105,9 @@ function handleOrientation(event) {
   var alpha    = event.alpha;
   var beta     = event.beta;
   var gamma    = event.gamma;
-  document.getElementById('alpha').innerHTML = alpha;
-  document.getElementById('beta').innerHTML = beta;
-  document.getElementById('gamma').innerHTML = gamma;
+  document.getElementById('alpha').innerHTML = Math.floor(alpha);
+  document.getElementById('beta').innerHTML = Math.floor(beta);
+  document.getElementById('gamma').innerHTML = Math.floor(gamma);
   // console.log(event);
 }
 
