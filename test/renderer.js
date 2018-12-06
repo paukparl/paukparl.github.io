@@ -175,12 +175,12 @@ function main() {
   gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
   // setRectangle(gl, 0, 0, 1, 1);
   var positions = [
+    0.0, 1.0,
     1.0, 1.0,
-    0.0, 1.0,
-    1.0, 0.0,
-    0.0, 1.0,
-    1.0, 0.0,
     0.0, 0.0,
+    1.0, 1.0,
+    0.0, 0.0,
+    1.0, 0.0,
       
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
