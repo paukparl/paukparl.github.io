@@ -116,6 +116,78 @@ function handleOrientation(event) {
   for (var i=0; i<quaternion.length;i++) {
     document.getElementById(i).innerHTML = quaternion[i];
   }
+  var eulerAngle = toEuler(quaternion);
+  document.getElementById('alpha').innerHTML = eulerAngle[0];
+  document.getElementById('beta').innerHTML = eulerAngle[1];
+  document.getElementById('gamma').innerHTML = eulerAngle[2];
+  // function toEulerAngle(quat, a, b, g)
+  // {
+  //   // roll (x-axis rotation)
+  //   var sinr_cosp = 2.0 * (quat[0] * quat[1] + quat[2] * quat[3]);
+  //   var cosr_cosp = 1.0 - 2.0 * (quat[1] * q[1] + q[2] * q[2]);
+  //   gamma = atan2(sinr_cosp, cosr_cosp);
+  
+  //   // pitch (y-axis rotation)
+  //   var sinp = +2.0 * (quat[0] * quat[2] - quat[3] * quat[1]);
+  //   if (fabs(sinp) >= 1)
+  //     pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+  //   else
+  //     pitch = asin(sinp);
+  
+  //   // yaw (z-axis rotation)
+  //   var siny_cosp = +2.0 * (quat[0] * quat[3] + quat[1] * quat[2]);
+  //   var cosy_cosp = +1.0 - 2.0 * (quat[2] * quat[2] + quat[3] * quat[3]);  
+  //   yaw = atan2(siny_cosp, cosy_cosp);
+  // }
+  function toEuler(quat) 
+  {
+    var test = quat[1]*quat[2] + quat[3]*quat[0];
+    if (test > 0.499) {
+      var euler = [];
+      euler[0] = 2 * Math.atan2(quat[1], quat[0])  ///// atan2 possible problem
+      euler[1] = Math.PI/2;
+      euler[2] = 0;
+      return euler;
+    }
+    if (test < -0.499) {
+      var euler = [];
+      euler[0] = -2 * Math.atan2(quat[1], quat[0])
+      euler[1] = -Math.PI/2;
+      euler[2] = 0;
+      return euler;
+    }
+    var euler = [];
+    var sqx = quat[1]*quat[1];
+    var sqy = quat[2]*quat[2];
+    var sqz = quat[3]*quat[3];
+    euler[0] = Math.atan2(2*quat[2]*quat[0]-2*quat[1]*quat[3], 1-2*sqy-2*sqz);
+    euler[1] = Math.asin(2*test);
+    euler[2] = Math.atan2(2*quat[1]*quat[0]-2*quat[2]*quat[3], 1-2*sqx-2*sqz);
+    return euler;
+  }
+  // public void set(Quat4d q1) {
+  //   double test = q1.x*q1.y + q1.z*q1.w;
+  //   if (test > 0.499) { // singularity at north pole
+  //     heading = 2 * atan2(q1.x,q1.w);
+  //     attitude = Math.PI/2;
+  //     bank = 0;
+  //     return;
+  //   }
+  //   if (test < -0.499) { // singularity at south pole
+  //     heading = -2 * atan2(q1.x,q1.w);
+  //     attitude = - Math.PI/2;
+  //     bank = 0;
+  //     return;
+  //   }
+  //     double sqx = q1.x*q1.x;
+  //     double sqy = q1.y*q1.y;
+  //     double sqz = q1.z*q1.z;
+  //     heading = atan2(2*q1.y*q1.w-2*q1.x*q1.z , 1 - 2*sqy - 2*sqz);
+  //   attitude = asin(2*test);
+  //   bank = atan2(2*q1.x*q1.w-2*q1.y*q1.z , 1 - 2*sqx - 2*sqz)
+  // }
+
+
   // document.getElementById('alpha').innerHTML = Math.floor(alpha);
   // document.getElementById('beta').innerHTML = Math.floor(beta);
   // document.getElementById('gamma').innerHTML = Math.floor(gamma);
