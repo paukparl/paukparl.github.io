@@ -85,7 +85,7 @@ function loadVideo() {
       videoHeight = video.videoHeight;
       
       setCamera();
-
+      fullScreen();
       main();
       if (playing && timeupdate) {
         copyVideo = true;
@@ -112,6 +112,19 @@ function setCamera() {
   // camera.quaternion = THREE.Quaternion();
   camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1100 );
   controls = new THREE.DeviceOrientationControls( camera );
+}
+
+
+function fullScreen() {
+  if (canvas.requestFullscreen) {
+    canvas.requestFullscreen();
+  } else if (canvas.mozRequestFullScreen) { /* Firefox */
+    canvas.mozRequestFullScreen();
+  } else if (canvas.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+    canvas.webkitRequestFullscreen();
+  } else if (canvas.msRequestFullscreen) { /* IE/Edge */
+    canvas.msRequestFullscreen();
+  }
 }
 
 
