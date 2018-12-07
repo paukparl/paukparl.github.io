@@ -105,11 +105,20 @@ function loadVideo() {
 
 function handleOrientation(event) {
   alpha    = event.alpha;
-  beta     = event.beta - 90;
+  beta     = event.beta;
   gamma    = event.gamma;
-  document.getElementById('alpha').innerHTML = Math.floor(alpha);
-  document.getElementById('beta').innerHTML = Math.floor(beta);
-  document.getElementById('gamma').innerHTML = Math.floor(gamma);
+  var quaternion = [
+    Math.cos(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) + Math.sin(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2),
+    Math.sin(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) - Math.cos(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2),
+    Math.cos(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2) + Math.sin(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2),
+    Math.cos(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2) - Math.sin(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2)
+  ]
+  for (var i=0; i<quaternion.length;i++) {
+    document.getElementById(i).innerHTML = quaternion[i];
+  }
+  // document.getElementById('alpha').innerHTML = Math.floor(alpha);
+  // document.getElementById('beta').innerHTML = Math.floor(beta);
+  // document.getElementById('gamma').innerHTML = Math.floor(gamma);
   // console.log(event);
 }
 
