@@ -8,7 +8,9 @@ if (!gl) {
 }
 
 
+
 let mouseX, mouseY; mouseX=mouseY=0;
+let alpha=0, beta=0, gamma=0;
 
 // Update global variables mouseX and mouseY upon mouse move,
 // so they can later be used by our fragment shader as u_mouse uniforms.
@@ -102,9 +104,9 @@ function loadVideo() {
 
 
 function handleOrientation(event) {
-  var alpha    = event.alpha;
-  var beta     = event.beta;
-  var gamma    = event.gamma;
+  alpha    = event.alpha;
+  beta     = event.beta;
+  gamma    = event.gamma;
   document.getElementById('alpha').innerHTML = Math.floor(alpha);
   document.getElementById('beta').innerHTML = Math.floor(beta);
   document.getElementById('gamma').innerHTML = Math.floor(gamma);
@@ -221,6 +223,9 @@ function main() {
     timeUniformLocation = gl.getUniformLocation(program, "u_time");
     mouseUniformLocation = gl.getUniformLocation(program, "u_mouse");
     textureUniformLocation = gl.getUniformLocation(program, "u_texture");
+    aUniformLocation = gl.getUniformLocation(program, "u_a");
+    bUniformLocation = gl.getUniformLocation(program, "u_b");
+    gUniformLocation = gl.getUniformLocation(program, "u_g");
 
     // Set time uniform
     gl.uniform1f(timeUniformLocation, timeStamp/1000.0);
@@ -230,6 +235,10 @@ function main() {
     gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
 
     gl.uniform1i(textureUniformLocation, 0);
+
+    gl.uniform1f(aUniformLocation, alpha/180*Math.PI);
+    gl.uniform1f(bUniformLocation, beta/180*Math.PI);
+    gl.uniform1f(gUniformLocation, gamma/180*Math.PI);
 
 
     // document.getElementById('mouseX').innerHTML = mouseX;
