@@ -99,9 +99,9 @@ void main( void )
   // vec3 cameraFront = vec3(0., 0., 1.);
   vec3 cameraRight = vec3(1., 0., 0.);
   vec3 cameraUp = vec3(0., 1., 0.);
-  vec3 cameraDirection = normalize( vec3( uv.x, uv.y, 1.));
+  // vec3 cameraDirection = normalize( vec3( uv.x, uv.y, 1.));
   // cameraDirection *= rotate3d(0., 0., u_mouse.y);
-  // cameraDirection *= rotate3d(u_a, u_g, -u_b-PI/2.);
+  cameraDirection *= rotate3d(u_a, u_g, -u_b);
   // cameraDirection *= rotate3d(u_a, u_b-PI/4., u_g);
   // +PI/4.
   // cameraDirection *= mat3(rotateAround(cameraUp, u_mouse.x));
