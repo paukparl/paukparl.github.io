@@ -96,12 +96,7 @@ void main( void )
   uv.x *= u_resolution.x / u_resolution.y;
 
   vec3 cameraPosition = vec3(0., 0., 0. );
-  // vec3 cameraFront = vec3(0., 0., 1.);
-  vec3 cameraRight = vec3(1., 0., 0.);
-  vec3 cameraUp = vec3(0., 1., 0.);
   vec3 cameraDirection = normalize( vec3( uv.x, uv.y, 1.));
-  // cameraDirection *= rotate3d(0., 0., u_mouse.y);
-  // cameraDirection *= rotate3d(u_a, u_g, -u_b);
   cameraDirection *= rotate3d(u_g, -u_a, -u_b);
   // cameraDirection *= rotate3d(u_a, u_b-PI/4., u_g);
   // +PI/4.
@@ -112,18 +107,19 @@ void main( void )
   // cameraDirection.xz *= rotate2d(u_time);
   // cameraDirection.xy *= rotate2d(u_mouse.x);
 
-  vec3 pointOnSurface;
-  float distanceToClosestPointInScene = trace( cameraPosition, cameraDirection, pointOnSurface );
+  vec3 p;
+  float distanceToClosestPointInScene = trace( cameraPosition, cameraDirection, p );
 
   vec3 backdrop = vec3(0.0);
   if( distanceToClosestPointInScene > 0.0 )
   {
-      backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05));
+      backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05), 0., 0.);
   } else {
-    backdrop = vec3(1.);
+    backdrop = vec3(0., 0., 1.);
   }
   vec4 finalColor = texture2D(u_texture, v_texcoord);
-  if (finalColor.b > 0.8) {
+  // if (finalColor.b > 0.75 && finalColor.b>finalColor.r) {
+  if (finalColor.b > 0.2) {
     finalColor = vec4(backdrop, 1.0);
   } else {
     finalColor = vec4(vec3(finalColor.r),1.);
