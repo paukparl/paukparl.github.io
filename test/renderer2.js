@@ -85,7 +85,7 @@ function loadVideo() {
       videoHeight = video.videoHeight;
       
       setCamera();
-      fullScreen();
+      // fullScreen();
       main();
       if (playing && timeupdate) {
         copyVideo = true;
@@ -116,12 +116,17 @@ function setCamera() {
 
 
 function fullScreen() {
+  // var prom1;
   if (canvas.requestFullscreen) {
-    canvas.requestFullscreen();
+    canvas.requestFullscreen().then({}).catch(err => {
+      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+    });
   } else if (canvas.mozRequestFullScreen) { /* Firefox */
     canvas.mozRequestFullScreen();
   } else if (canvas.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-    canvas.webkitRequestFullscreen();
+    canvas.webkitRequestFullscreen().then({}).catch(err => {
+      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+    });
   } else if (canvas.msRequestFullscreen) { /* IE/Edge */
     canvas.msRequestFullscreen();
   }
