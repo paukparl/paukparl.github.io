@@ -11,6 +11,7 @@ if (!gl) {
 
 let mouseX, mouseY; mouseX=mouseY=0;
 let alpha=0, beta=0, gamma=0;
+let eulerAngle;
 
 // Update global variables mouseX and mouseY upon mouse move,
 // so they can later be used by our fragment shader as u_mouse uniforms.
@@ -321,9 +322,9 @@ function main() {
 
     gl.uniform1i(textureUniformLocation, 0);
 
-    gl.uniform1f(aUniformLocation, alpha/180*Math.PI);
-    gl.uniform1f(bUniformLocation, beta/180*Math.PI);
-    gl.uniform1f(gUniformLocation, gamma/180*Math.PI);
+    gl.uniform1f(aUniformLocation, eulerAngle[0]);
+    gl.uniform1f(bUniformLocation, eulerAngle[1]);
+    gl.uniform1f(gUniformLocation, eulerAngle[2]);
 
 
     // document.getElementById('mouseX').innerHTML = mouseX;
