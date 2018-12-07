@@ -104,22 +104,22 @@ function loadVideo() {
 
 
 function handleOrientation(event) {
-  alpha    = event.alpha;
-  beta     = event.beta;
-  gamma    = event.gamma;
+  alpha    = event.alpha/180*Math.PI;;
+  beta     = event.beta/180*Math.PI;;
+  gamma    = event.gamma/180*Math.PI;;
   var quaternion = [
     Math.cos(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) + Math.sin(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2),
-    Math.cos(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2) - Math.sin(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2),
+    Math.sin(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) - Math.cos(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2),
     Math.cos(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2) + Math.sin(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2),
-    Math.sin(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) - Math.cos(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2)
+    Math.cos(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2) - Math.sin(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2)
   ]
   for (var i=0; i<quaternion.length;i++) {
-    document.getElementById(i).innerHTML = quaternion[i];
+    document.getElementById(i).innerHTML = quaternion[i].toFixed(2);
   }
   var eulerAngle = toEuler(quaternion);
-  document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);;
-  document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);;
-  document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);;
+  document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);
+  document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);
+  document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);
   // function toEulerAngle(quat, a, b, g)
   // {
   //   // roll (x-axis rotation)
