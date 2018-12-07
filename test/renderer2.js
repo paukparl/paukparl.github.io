@@ -247,9 +247,9 @@ function main() {
     // gl.uniform1f(aUniformLocation, eulerAngle['w']);
     // gl.uniform1f(bUniformLocation, eulerAngle['x']);
     // gl.uniform1f(gUniformLocation, eulerAngle['y']);
-    gl.uniform1f(aUniformLocation, alpha);
-    gl.uniform1f(bUniformLocation, beta);
-    gl.uniform1f(gUniformLocation, gamma);
+    gl.uniform1f(aUniformLocation, eulerAngle['a']);
+    gl.uniform1f(bUniformLocation, eulerAngle['b']);
+    gl.uniform1f(gUniformLocation, eulerAngle['g']);
 
 
     // document.getElementById('mouseX').innerHTML = mouseX;
