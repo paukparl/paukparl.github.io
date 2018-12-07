@@ -11,7 +11,7 @@ if (!gl) {
 
 let mouseX, mouseY; mouseX=mouseY=0;
 let alpha=0, beta=0, gamma=0;
-let eulerAngle;
+let eulerAngle = [0, 0, 0];
 
 // Update global variables mouseX and mouseY upon mouse move,
 // so they can later be used by our fragment shader as u_mouse uniforms.
@@ -117,7 +117,7 @@ function handleOrientation(event) {
   for (var i=0; i<quaternion.length;i++) {
     document.getElementById(i).innerHTML = quaternion[i].toFixed(2);
   }
-  var eulerAngle = toEuler(quaternion);
+  eulerAngle = toEuler(quaternion);
   document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);
   document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);
   document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);
