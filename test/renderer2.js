@@ -67,7 +67,7 @@ makeRequest('GET', 'vertexShader.glsl')
 
   // Then, async load the fragment shader.
 //   return makeRequest('GET', '/fragmentShaders/ray_marching/01.glsl');
-  return makeRequest('GET', 'fragmentShaders/01.glsl');
+  return makeRequest('GET', 'fragmentShaders/02.glsl');
 })
 .then(function (data) {
   // When resolved, save the fragment shader in the global variable.
@@ -82,7 +82,8 @@ makeRequest('GET', 'vertexShader.glsl')
 }
 
 function loadVideo() {
-  // navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { exact: "environment" } } })
+  
+  // ------------ PHONE DEV
   navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode:  "environment"  } })
   .then(function(stream) {
     console.log(stream.getVideoTracks())
@@ -93,10 +94,11 @@ function loadVideo() {
       playing = true;
       videoWidth = video.videoWidth;
       videoHeight = video.videoHeight;
-      
+  // ------------ PHONE DEV
       setCamera();
       
       main();
+  // ------------ PHONE DEV
       if (playing && timeupdate) {
         copyVideo = true;
       }
@@ -113,6 +115,7 @@ function loadVideo() {
   .catch(function(err) {
     console.log("An error occurred! " + err);
   });
+  // ------------ PHONE DEV
 }
 
 
@@ -160,17 +163,17 @@ function main() {
   positionBuffer = gl.createBuffer();
   // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  // Set a rectangle the same size as the image.
-  // setRectangle(gl, (video.videoWidth/video.videoHeight)/, -1, 2,2);
-  // setRectangle(gl, 0, 0, canvas.width, canvas.height);
-  // setRectangle(gl, 0, 0, canvas.clientWidth, canvas.clientHeight);
-  // console.log(video.videoWidth/video.videoHeight);
-  // console.log(canvas.width/canvas.height);
   
   // let stretchFactor = canvas.width/canvas.height - video.videoWidth/video.videoHeight;
 
   let canvasRatio = canvas.width/canvas.height;
+
+  // ------------ PHONE DEV
   let videoRatio = video.videoWidth/video.videoHeight;
+  // let videoRatio = 3/4
+  // ------------ PHONE DEV
+
+
 
   if (canvasRatio < videoRatio) {
     var stretch = (videoRatio-canvasRatio)/2/canvasRatio;
@@ -243,10 +246,11 @@ function main() {
 
     controls.update();
     eulerAngle = toEuler(camera.quaternion);
-    console.log(eulerAngle);
-    document.getElementById('alpha').innerHTML = eulerAngle['a'].toFixed(2);
-    document.getElementById('beta').innerHTML = eulerAngle['b'].toFixed(2);
-    document.getElementById('gamma').innerHTML = eulerAngle['g'].toFixed(2);
+    console.log(eulerAngle['a'].toFixed(2)+ '   ' + eulerAngle['b'].toFixed(2) + '   ' + eulerAngle['g'].toFixed(2) );
+
+    // document.getElementById('alpha').innerHTML = eulerAngle['a'].toFixed(2);
+    // document.getElementById('beta').innerHTML = eulerAngle['b'].toFixed(2);
+    // document.getElementById('gamma').innerHTML = eulerAngle['g'].toFixed(2);
     
 
     // Tell it to use our program (pair of shaders)

@@ -29,7 +29,7 @@ float map( vec3 p )
   p.x=mod(p.x,4.0)-2.0;
   p.y=mod(p.y,4.0)-2.0;
   p.z=mod(p.z,4.0)-2.0;
-  return sphere( p, 1.5 ); // sphere size change
+  return sphere( p, 1. ); // sphere size change
 }
 
 
@@ -37,7 +37,7 @@ float trace( vec3 origin, vec3 direction, out vec3 p )
 {
   float totalDistanceTraveled = 0.0;
 
-  for( int i=0; i < 32; ++i)
+  for( int i=0; i < 20; ++i)
   {
     
     p = origin + direction * totalDistanceTraveled;
@@ -113,13 +113,12 @@ void main( void )
   vec3 backdrop = vec3(0.0);
   if( distanceToClosestPointInScene > 0.0 )
   {
-    if (uv.y>0.) backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05), 0., 0.);
-    else backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05));
+    backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05));
   } else {
-    backdrop = vec3(0., 0., 1.);
+    backdrop = vec3(0.);
   }
   vec4 finalColor = texture2D(u_texture, v_texcoord);
-  if (finalColor.b > 0.75 && finalColor.b>finalColor.r) {
+  if (finalColor.b > 0.75) {
   // if (finalColor.b > 0.2) {
     finalColor = vec4(backdrop, 1.0);
   } 
