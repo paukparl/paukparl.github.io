@@ -11,7 +11,8 @@ if (!gl) {
 
 let mouseX, mouseY; mouseX=mouseY=0;
 let alpha=0, beta=0, gamma=0;
-let eulerAngle = [0, 0, 0];
+let eulerAngle = {};
+let camera, controls;
 
 // Update global variables mouseX and mouseY upon mouse move,
 // so they can later be used by our fragment shader as u_mouse uniforms.
@@ -82,7 +83,9 @@ function loadVideo() {
       playing = true;
       videoWidth = video.videoWidth;
       videoHeight = video.videoHeight;
-      window.addEventListener("deviceorientation", handleOrientation, true);
+      
+      setCamera();
+
       main();
       if (playing && timeupdate) {
         copyVideo = true;
@@ -103,105 +106,13 @@ function loadVideo() {
 }
 
 
-
-function handleOrientation(event) {
-  alpha    = event.alpha/180*Math.PI;
-  beta     = event.beta/180*Math.PI;
-  gamma    = event.gamma/180*Math.PI;
-  var quaternion = [
-    Math.cos(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) + Math.sin(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2),
-    Math.sin(alpha/2)*Math.cos(beta/2)*Math.cos(gamma/2) - Math.cos(alpha/2)*Math.sin(beta/2)*Math.sin(gamma/2),
-    Math.cos(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2) + Math.sin(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2),
-    Math.cos(alpha/2)*Math.cos(beta/2)*Math.sin(gamma/2) - Math.sin(alpha/2)*Math.sin(beta/2)*Math.cos(gamma/2)
-  ]
-  for (var i=0; i<quaternion.length;i++) {
-    document.getElementById(i).innerHTML = quaternion[i].toFixed(2);
-  }
-  // eulerAngle = toEuler(quaternion);
-  // document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);
-  // document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);
-  // document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);
-  document.getElementById('alpha').innerHTML = alpha;
-  document.getElementById('beta').innerHTML = beta;
-  document.getElementById('gamma').innerHTML = gamma;
-  // function toEulerAngle(quat, a, b, g)
-  // {
-  //   // roll (x-axis rotation)
-  //   var sinr_cosp = 2.0 * (quat[0] * quat[1] + quat[2] * quat[3]);
-  //   var cosr_cosp = 1.0 - 2.0 * (quat[1] * q[1] + q[2] * q[2]);
-  //   gamma = atan2(sinr_cosp, cosr_cosp);
-  
-  //   // pitch (y-axis rotation)
-  //   var sinp = +2.0 * (quat[0] * quat[2] - quat[3] * quat[1]);
-  //   if (fabs(sinp) >= 1)
-  //     pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-  //   else
-  //     pitch = asin(sinp);
-  
-  //   // yaw (z-axis rotation)
-  //   var siny_cosp = +2.0 * (quat[0] * quat[3] + quat[1] * quat[2]);
-  //   var cosy_cosp = +1.0 - 2.0 * (quat[2] * quat[2] + quat[3] * quat[3]);  
-  //   yaw = atan2(siny_cosp, cosy_cosp);
-  // }
-
-  
-  function toEuler(quat) 
-  {
-    var test = quat[1]*quat[2] + quat[3]*quat[0];
-    if (test > 0.499) {
-      var euler = [];
-      euler[0] = 2 * Math.atan2(quat[1], quat[0])  ///// atan2 possible problem
-      euler[1] = Math.PI/2;
-      euler[2] = 0;
-      return euler;
-    }
-    if (test < -0.499) {
-      var euler = [];
-      euler[0] = -2 * Math.atan2(quat[1], quat[0])
-      euler[1] = -Math.PI/2;
-      euler[2] = 0;
-      return euler;
-    }
-    var euler = [];
-    var sqx = quat[1]*quat[1];
-    var sqy = quat[2]*quat[2];
-    var sqz = quat[3]*quat[3];
-    euler[0] = Math.atan2(2*quat[2]*quat[0]-2*quat[1]*quat[3], 1-2*sqy-2*sqz);
-    euler[1] = Math.asin(2*test);
-    euler[2] = Math.atan2(2*quat[1]*quat[0]-2*quat[2]*quat[3], 1-2*sqx-2*sqz);
-    return euler;
-  }
-
-  
-  // public void set(Quat4d q1) {
-  //   double test = q1.x*q1.y + q1.z*q1.w;
-  //   if (test > 0.499) { // singularity at north pole
-  //     heading = 2 * atan2(q1.x,q1.w);
-  //     attitude = Math.PI/2;
-  //     bank = 0;
-  //     return;
-  //   }
-  //   if (test < -0.499) { // singularity at south pole
-  //     heading = -2 * atan2(q1.x,q1.w);
-  //     attitude = - Math.PI/2;
-  //     bank = 0;
-  //     return;
-  //   }
-  //     double sqx = q1.x*q1.x;
-  //     double sqy = q1.y*q1.y;
-  //     double sqz = q1.z*q1.z;
-  //     heading = atan2(2*q1.y*q1.w-2*q1.x*q1.z , 1 - 2*sqy - 2*sqz);
-  //   attitude = asin(2*test);
-  //   bank = atan2(2*q1.x*q1.w-2*q1.y*q1.z , 1 - 2*sqx - 2*sqz)
-  // }
-
-
-  // document.getElementById('alpha').innerHTML = Math.floor(alpha);
-  // document.getElementById('beta').innerHTML = Math.floor(beta);
-  // document.getElementById('gamma').innerHTML = Math.floor(gamma);
-  // console.log(event);
+function setCamera() {
+  // controls = new THREE.DeviceOrientationControls( camera );
+  // controls.connect();
+  // camera.quaternion = THREE.Quaternion();
+  camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1100 );
+  controls = new THREE.DeviceOrientationControls( camera );
 }
-
 
 
 
@@ -304,6 +215,14 @@ function main() {
   function drawScene(timeStamp) {
     resizeCanvasToDisplaySize(gl.canvas);
 
+    controls.update();
+    eulerAngle = toEuler(camera.quaternion);
+    console.log(eulerAngle);
+    document.getElementById('alpha').innerHTML = eulerAngle['a'].toFixed(2);
+    document.getElementById('beta').innerHTML = eulerAngle['b'].toFixed(2);
+    document.getElementById('gamma').innerHTML = eulerAngle['g'].toFixed(2);
+    
+
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
       
@@ -325,9 +244,9 @@ function main() {
 
     gl.uniform1i(textureUniformLocation, 0);
 
-    // gl.uniform1f(aUniformLocation, eulerAngle[0]);
-    // gl.uniform1f(bUniformLocation, eulerAngle[1]);
-    // gl.uniform1f(gUniformLocation, eulerAngle[2]);
+    // gl.uniform1f(aUniformLocation, eulerAngle['w']);
+    // gl.uniform1f(bUniformLocation, eulerAngle['x']);
+    // gl.uniform1f(gUniformLocation, eulerAngle['y']);
     gl.uniform1f(aUniformLocation, alpha);
     gl.uniform1f(bUniformLocation, beta);
     gl.uniform1f(gUniformLocation, gamma);
@@ -396,6 +315,33 @@ function main() {
 
 
 
+
+function toEuler(quat) 
+  {
+    var test = quat['x']*quat['y'] + quat['z']*quat['w'];
+    if (test > 0.499) {
+      var euler = {};
+      euler['a'] = 2 * Math.atan2(quat['x'], quat['w'])  ///// atan2 possible problem
+      euler['b'] = Math.PI/2;
+      euler['g'] = 0;
+      return euler;
+    }
+    if (test < -0.499) {
+      var euler = {};
+      euler['a'] = -2 * Math.atan2(quat['x'], quat['w'])
+      euler['b'] = -Math.PI/2;
+      euler['g'] = 0;
+      return euler;
+    }
+    var euler = {};
+    var sqx = quat['x']*quat['x'];
+    var sqy = quat['y']*quat['y'];
+    var sqz = quat['z']*quat['z'];
+    euler['a'] = Math.atan2(2*quat['y']*quat['w']-2*quat['x']*quat['z'], 1-2*sqy-2*sqz);
+    euler['b'] = Math.asin(2*test);
+    euler['g'] = Math.atan2(2*quat['x']*quat['w']-2*quat['y']*quat['z'], 1-2*sqx-2*sqz);
+    return euler;
+  }
 
 
 
