@@ -57,7 +57,7 @@ function start() {
     console.log('NO WEBGL?!')
   }
 
-  fullScreen();
+  // fullScreen();
 
 makeRequest('GET', 'vertexShader.glsl')
 .then(function (data) {

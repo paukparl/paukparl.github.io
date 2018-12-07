@@ -122,9 +122,7 @@ void main( void )
   // if (finalColor.b > 0.75 && finalColor.b>finalColor.r) {
   if (finalColor.b > 0.2) {
     finalColor = vec4(backdrop, 1.0);
-  } else {
-    finalColor = vec4(vec3(finalColor.r),1.);
-  }
+  } 
   
   gl_FragColor = finalColor;
   // gl_FragColor = vec4( finalColor, 1.0 );
