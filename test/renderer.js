@@ -325,9 +325,12 @@ function main() {
 
     gl.uniform1i(textureUniformLocation, 0);
 
-    gl.uniform1f(aUniformLocation, eulerAngle[0]);
-    gl.uniform1f(bUniformLocation, eulerAngle[1]);
-    gl.uniform1f(gUniformLocation, eulerAngle[2]);
+    // gl.uniform1f(aUniformLocation, eulerAngle[0]);
+    // gl.uniform1f(bUniformLocation, eulerAngle[1]);
+    // gl.uniform1f(gUniformLocation, eulerAngle[2]);
+    gl.uniform1f(aUniformLocation, alpha);
+    gl.uniform1f(bUniformLocation, beta);
+    gl.uniform1f(gUniformLocation, gamma);
 
 
     // document.getElementById('mouseX').innerHTML = mouseX;
