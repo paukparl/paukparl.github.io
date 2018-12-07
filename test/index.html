@@ -9,7 +9,7 @@
       width: 100vw;
       height: 100vh;
       display: block;
-      z-index: 10;
+      z-index: 1;
       position:absolute;
       top: 0;
     }
@@ -27,6 +27,33 @@
       font-size: 80px;
       margin: 10px 20px;
     }
+    #button-container{
+      width: 100vw;
+      height: 100vh;
+      background-color: white;
+      position: absolute;
+      top: 0; left: 0;
+      display: flex;
+    }
+    #start-button{
+      z-index: 2;
+      background-color: white;
+      border-color: black;
+      border-style: solid;
+      border-width: 2px;
+      width: 30vh;
+      height: 30vh;
+      border-radius: 15vh;
+      text-align: center;
+      line-height: 30vh;
+      font-size: 7vh;
+      font-family: Arial, Helvetica, sans-serif;
+      font-style: italic;
+      font-weight:lighter;
+      /* position: absolute; */
+      margin: auto;
+    }
+    
   </style>
 </head>
 <html>
@@ -40,9 +67,11 @@
   <h1 id="beta"></h1>
   <h1 id="gamma"></h1>
   
-
+  <div id="button-container">
+    <div id="start-button" onclick="start()">START</div>
+  </div>
   <video width="30" autoplay playsinline id="video">Video stream not available.</video>
-  <canvas id="c" onclick="fullScreen();"></canvas>
+  <!-- <canvas id="c"></canvas> -->
 
   <script src="three.min.js"></script>
   <script src="DeviceOrientationControls.js"></script>

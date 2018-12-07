@@ -1,11 +1,9 @@
 let copyVideo = false;
-const canvas = document.getElementById("c");
-const gl = canvas.getContext("webgl");
+let canvas; 
+let gl;
 const video = document.getElementById('video');
 let videoWidth, videoHeight;
-if (!gl) {
-  console.log('NO WEBGL?!')
-}
+
 
 
 
@@ -49,6 +47,16 @@ function makeRequest (method, url) {
 }
 
 // First, async load the vertex shader.
+function start() {
+  console.log('clicked')
+  canvas= document.createElement("CANVAS");
+  document.body.appendChild(canvas);
+  canvas.style.zIndex = 3;
+  gl = canvas.getContext("webgl");
+  if (!gl) {
+    console.log('NO WEBGL?!')
+  }
+
 makeRequest('GET', 'vertexShader.glsl')
 .then(function (data) {
 
@@ -69,7 +77,7 @@ makeRequest('GET', 'vertexShader.glsl')
 .catch(function (err) {
   console.error('error!', err.statusText);
 });
-
+}
 
 function loadVideo() {
   // navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { exact: "environment" } } })
