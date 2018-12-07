@@ -116,10 +116,10 @@ function handleOrientation(event) {
   for (var i=0; i<quaternion.length;i++) {
     document.getElementById(i).innerHTML = quaternion[i];
   }
-  // var eulerAngle = toEuler(quaternion);
-  // document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);;
-  // document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);;
-  // document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);;
+  var eulerAngle = toEuler(quaternion);
+  document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);;
+  document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);;
+  document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);;
   // function toEulerAngle(quat, a, b, g)
   // {
   //   // roll (x-axis rotation)
@@ -141,32 +141,32 @@ function handleOrientation(event) {
   // }
 
   
-  // function toEuler(quat) 
-  // {
-  //   var test = quat[1]*quat[2] + quat[3]*quat[0];
-  //   if (test > 0.499) {
-  //     var euler = [];
-  //     euler[0] = 2 * Math.atan2(quat[1], quat[0])  ///// atan2 possible problem
-  //     euler[1] = Math.PI/2;
-  //     euler[2] = 0;
-  //     return euler;
-  //   }
-  //   if (test < -0.499) {
-  //     var euler = [];
-  //     euler[0] = -2 * Math.atan2(quat[1], quat[0])
-  //     euler[1] = -Math.PI/2;
-  //     euler[2] = 0;
-  //     return euler;
-  //   }
-  //   var euler = [];
-  //   var sqx = quat[1]*quat[1];
-  //   var sqy = quat[2]*quat[2];
-  //   var sqz = quat[3]*quat[3];
-  //   euler[0] = Math.atan2(2*quat[2]*quat[0]-2*quat[1]*quat[3], 1-2*sqy-2*sqz);
-  //   euler[1] = Math.asin(2*test);
-  //   euler[2] = Math.atan2(2*quat[1]*quat[0]-2*quat[2]*quat[3], 1-2*sqx-2*sqz);
-  //   return euler;
-  // }
+  function toEuler(quat) 
+  {
+    var test = quat[1]*quat[2] + quat[3]*quat[0];
+    if (test > 0.499) {
+      var euler = [];
+      euler[0] = 2 * Math.atan2(quat[1], quat[0])  ///// atan2 possible problem
+      euler[1] = Math.PI/2;
+      euler[2] = 0;
+      return euler;
+    }
+    if (test < -0.499) {
+      var euler = [];
+      euler[0] = -2 * Math.atan2(quat[1], quat[0])
+      euler[1] = -Math.PI/2;
+      euler[2] = 0;
+      return euler;
+    }
+    var euler = [];
+    var sqx = quat[1]*quat[1];
+    var sqy = quat[2]*quat[2];
+    var sqz = quat[3]*quat[3];
+    euler[0] = Math.atan2(2*quat[2]*quat[0]-2*quat[1]*quat[3], 1-2*sqy-2*sqz);
+    euler[1] = Math.asin(2*test);
+    euler[2] = Math.atan2(2*quat[1]*quat[0]-2*quat[2]*quat[3], 1-2*sqx-2*sqz);
+    return euler;
+  }
 
   
   // public void set(Quat4d q1) {
