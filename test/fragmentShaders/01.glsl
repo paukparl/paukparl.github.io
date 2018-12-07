@@ -113,7 +113,8 @@ void main( void )
   vec3 backdrop = vec3(0.0);
   if( distanceToClosestPointInScene > 0.0 )
   {
-      backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05), 0., 0.);
+    if (uv.y>0.) backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05), 0., 0.);
+    else backdrop = vec3(1. / (1. + distanceToClosestPointInScene * distanceToClosestPointInScene * 0.05));
   } else {
     backdrop = vec3(0., 0., 1.);
   }

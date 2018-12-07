@@ -57,6 +57,8 @@ function start() {
     console.log('NO WEBGL?!')
   }
 
+  fullScreen();
+
 makeRequest('GET', 'vertexShader.glsl')
 .then(function (data) {
 
@@ -93,7 +95,7 @@ function loadVideo() {
       videoHeight = video.videoHeight;
       
       setCamera();
-      // fullScreen();
+      
       main();
       if (playing && timeupdate) {
         copyVideo = true;
@@ -125,16 +127,14 @@ function setCamera() {
 
 function fullScreen() {
   // var prom1;
+  // canvas.requestFullscreen();
   if (canvas.requestFullscreen) {
-    canvas.requestFullscreen().then({}).catch(err => {
-      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-    });
+    canvas.requestFullscreen();
   } else if (canvas.mozRequestFullScreen) { /* Firefox */
     canvas.mozRequestFullScreen();
   } else if (canvas.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-    canvas.webkitRequestFullscreen().then({}).catch(err => {
-      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-    });
+    console.log(canvas.requestFullscreen);
+    canvas.webkitRequestFullscreen();
   } else if (canvas.msRequestFullscreen) { /* IE/Edge */
     canvas.msRequestFullscreen();
   }
