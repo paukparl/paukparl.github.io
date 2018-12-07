@@ -10,7 +10,7 @@ THREE.DeviceOrientationControls = function ( object ) {
 	var scope = this;
 
 	this.object = object;
-	this.object.rotation.reorder( 'YZX' );
+	// this.object.rotation.reorder( 'YXZ' );
 
 	this.enabled = true;
 
@@ -45,7 +45,7 @@ THREE.DeviceOrientationControls = function ( object ) {
 
 		return function ( quaternion, alpha, beta, gamma, orient ) {
 
-			euler.set( beta, alpha, - gamma, 'YZX' ); // 'ZXY' for the device, but 'YXZ' for us
+			euler.set( beta, alpha, - gamma, 'YXZ' ); // 'ZXY' for the device, but 'YXZ' for us
 
 			quaternion.setFromEuler( euler ); // orient the device
 

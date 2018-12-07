@@ -321,16 +321,16 @@ function toEuler(quat)
     var test = quat['x']*quat['y'] + quat['z']*quat['w'];
     if (test > 0.499) {
       var euler = {};
-      euler['a'] = 2 * Math.atan2(quat['x'], quat['w'])  ///// atan2 possible problem
-      euler['b'] = Math.PI/2;
-      euler['g'] = 0;
+      euler['a'] = 2 * Math.atan2(quat['x'], quat['w']);
+      euler['g'] = Math.PI/2; // g and b have to be inversed here and below idk why
+      euler['b'] = 0;
       return euler;
     }
     if (test < -0.499) {
       var euler = {};
       euler['a'] = -2 * Math.atan2(quat['x'], quat['w'])
-      euler['b'] = -Math.PI/2;
-      euler['g'] = 0;
+      euler['g'] = -Math.PI/2;
+      euler['b'] = 0;
       return euler;
     }
     var euler = {};
@@ -338,8 +338,8 @@ function toEuler(quat)
     var sqy = quat['y']*quat['y'];
     var sqz = quat['z']*quat['z'];
     euler['a'] = Math.atan2(2*quat['y']*quat['w']-2*quat['x']*quat['z'], 1-2*sqy-2*sqz);
-    euler['b'] = Math.asin(2*test);
-    euler['g'] = Math.atan2(2*quat['x']*quat['w']-2*quat['y']*quat['z'], 1-2*sqx-2*sqz);
+    euler['g'] = Math.asin(2*test);
+    euler['b'] = Math.atan2(2*quat['x']*quat['w']-2*quat['y']*quat['z'], 1-2*sqx-2*sqz);
     return euler;
   }
 
