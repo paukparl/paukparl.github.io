@@ -123,7 +123,7 @@ void main( void )
     backdrop = vec3(1.);
   }
   vec4 finalColor = texture2D(u_texture, v_texcoord);
-  if (finalColor.b > 0.1) {
+  if (finalColor.b > 0.9) {
     finalColor = vec4(backdrop, 1.0);
   } else {
     finalColor = vec4(vec3(finalColor.r),1.);
