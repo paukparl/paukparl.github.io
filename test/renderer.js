@@ -105,7 +105,7 @@ function loadVideo() {
 
 function handleOrientation(event) {
   alpha    = event.alpha;
-  beta     = event.beta-90;
+  beta     = event.beta;
   gamma    = event.gamma;
   document.getElementById('alpha').innerHTML = Math.floor(alpha);
   document.getElementById('beta').innerHTML = Math.floor(beta);
