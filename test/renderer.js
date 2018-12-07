@@ -118,9 +118,12 @@ function handleOrientation(event) {
     document.getElementById(i).innerHTML = quaternion[i].toFixed(2);
   }
   eulerAngle = toEuler(quaternion);
-  document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);
-  document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);
-  document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);
+  // document.getElementById('alpha').innerHTML = eulerAngle[0].toFixed(2);
+  // document.getElementById('beta').innerHTML = eulerAngle[1].toFixed(2);
+  // document.getElementById('gamma').innerHTML = eulerAngle[2].toFixed(2);
+  document.getElementById('alpha').innerHTML = alpha;
+  document.getElementById('beta').innerHTML = beta;
+  document.getElementById('gamma').innerHTML = gamma;
   // function toEulerAngle(quat, a, b, g)
   // {
   //   // roll (x-axis rotation)
