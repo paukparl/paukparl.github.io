@@ -32,8 +32,11 @@ function mousemoveHandler(e) {
 
 document.getElementById('code-button').addEventListener('click', function(){
   console.log('codeC');
-  if (showCode) codeContainer.style.display = 'none';
-  else codeContainer.style.display = 'block';
+  if (showCode) {
+    codeContainer.style.display = 'none';
+  } else {
+    codeContainer.style.display = 'block';
+  }
   showCode = !showCode;
 })
 

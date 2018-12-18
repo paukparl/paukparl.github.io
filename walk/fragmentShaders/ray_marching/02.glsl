@@ -85,26 +85,29 @@ float geometry( float march,
                 vec3 transLocal,
                 vec3 transGlobal)
 {  
+  // rayPos copy
   vec3 q;
-
-  
-
+  // apply modulo if cell dimensions are defined
   if (length(cell)>0.) q = mod(rayPos, cell)-0.5*cell;
   else q = rayPos;
   
+  // global transition of geometries
   q -= transGlobal;
 
+  // reflection
   if (reflected) {
     q = abs(q);
   }
 
+  // transition of geometries within cell
   q -= transLocal;
 
+  // rotations
   q = rotX(q, rot.x);
   q = rotY(q, rot.y);
   q = rotZ(q, rot.z);
-
   
+  // signed distance functions
   float marchNew;
   if (type==1) {
     marchNew = sdPlane(rayPos, vec4(0., -1., 0., 0.5));
@@ -115,7 +118,9 @@ float geometry( float march,
   } else if (type==4) {
     marchNew = sdCappedCylinder(q, dimensions.xy);
   }
+  // The list could go on...
 
+  // subtract or add
   if (subtraction) return max(-marchNew, march);
   return min(march, marchNew);
 }
