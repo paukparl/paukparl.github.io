@@ -1,22 +1,22 @@
-/*    
-    1. SOME PREPARATIONS
-    Before the actual WebGL, here are some preparations.
-*/
-
-// Get WebGL context.
-// A context is basically an object that holds all of WebGL.
 const canvas = document.getElementById("c");
 const gl = canvas.getContext("webgl");
 if (!gl) {
   console.log('NO WEBGL?!')
 }
 
+const codeContainer = document.getElementById("code-container");
+// code 
+
 // Some global variables
 let vertexShaderSource, fragmentShaderSource;
 let program, positionAttributeLocation;
 let resolutionUniformLocation, timeUniformLocation, mouseUniformLocation;
-let mouseX, mouseY; mouseX=mouseY=0;
-let mouseInX, mouseInY; mouseInX=mouseInY=0;
+let mouseX = window.innerWidth/2
+  , mouseY = window.innerHeight/2;
+let mouseInX = window.innerWidth/2
+  , mouseInY = window.innerHeight/2
+
+let showCode = false;
 
 // Update global variables mouseX and mouseY upon mouse move,
 // so they can later be used by our fragment shader as u_mouse uniforms.
@@ -29,6 +29,13 @@ function mousemoveHandler(e) {
   
 }
 
+
+document.getElementById('code-button').addEventListener('click', function(){
+  console.log('codeC');
+  if (showCode) codeContainer.style.display = 'none';
+  else codeContainer.style.display = 'block';
+  showCode = !showCode;
+})
 
 
 /*    
@@ -72,7 +79,7 @@ function makeRequest (method, url) {
 }
 
 // First, async load the vertex shader.
-makeRequest('GET', '/vertexShader.glsl')
+makeRequest('GET', 'vertexShader.glsl')
 .then(function (data) {
 
   // When resolved, save the vertex shader in the global variable.
@@ -80,12 +87,28 @@ makeRequest('GET', '/vertexShader.glsl')
 
   // Then, async load the fragment shader.
 //   return makeRequest('GET', '/fragmentShaders/ray_marching/01.glsl');
-  return makeRequest('GET', '/fragmentShaders/ray_marching/02.glsl');
+  return makeRequest('GET', 'fragmentShaders/ray_marching/02.glsl');
 })
 .then(function (data) {
   // When resolved, save the fragment shader in the global variable.
   fragmentShaderSource = data;
 
+
+  var codeLines = data.split("\n");
+  for (var i in codeLines) {
+    var lineText = codeLines[i].replace(' ', '&nbsp;');
+    if (lineText.length == 0) lineText = '&nbsp;';
+    
+    
+    var line = document.createElement("P");
+    line.innerHTML = lineText;
+
+    if (lineText.includes('//')) line.style.color = 'rgba(0, 255, 255, 0.8)';
+
+    codeContainer.appendChild(line);
+    console.log(line);
+  }
+  // code.innerHTML = data;
 
   /*    
       3. START THE PIPELINE!
@@ -132,9 +155,11 @@ function setup() {
 }
 
 
-function renderLoop(timeStamp) {
+function renderLoop() {
   var d = new Date();
-  console.log(d.getTime());
+  // console.log(d.getTime());
+  timeStamp = d.getTime();
+  document.getElementById('time-container').innerHTML = 'UTC ' + timeStamp;
   // Resize canvas if display size changes
   resizeCanvasToDisplaySize(gl.canvas);
 
@@ -262,7 +287,8 @@ function setUniforms(timeStamp) {
   // mouseLastY = mouseY;
 
   // Set time uniform
-  gl.uniform1f(timeUniformLocation, timeStamp/1000.0);
+  gl.uniform1f(timeUniformLocation, timeStamp/1000.%10000.);
+  console.log( timeStamp/1000.%10000.);
   // Set mouse uniform
   gl.uniform2f(mouseUniformLocation, mouseInX/canvas.width, 1-mouseInY/canvas.height);
   // Set the resolution

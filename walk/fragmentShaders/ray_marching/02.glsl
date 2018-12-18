@@ -1,11 +1,10 @@
-/*
-CREDITS:
-Iq's ubiquitous distance functions: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-Simple raymarching setup adapted from some deleted reddit user's tutorial: https://www.reddit.com/r/twotriangles/comments/1hy5qy/tutorial_1_writing_a_simple_distance_field/
-Useful maths: http://paulbourke.net/dome/fisheye/
-Convenient list of lens functions: https://en.wikipedia.org/wiki/Fisheye_lens#Mapping_function
-(if you know of more projections described in similar polar form let me know!)
-*/
+// Infinite Walk into Generated Space
+// Paul Park
+// https://paukparl.com
+
+// Signed Distance Functions: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// Lens Distortion: https://www.shadertoy.com/view/MtV3Dd
+// Art inspiration: https://www.youtube.com/watch?v=ChVbgkhu8-o
 
 #ifdef GL_ES
 precision mediump float;
@@ -13,8 +12,8 @@ precision mediump float;
 
 #define PI 3.14159265359
 
-const int MAX_ITER = 128;
-const float MAX_DIST = 500.0;
+const int MAX_ITER = 256;
+const float MAX_DIST = 200.0;
 const float EPSILON = 0.01;
 const float FOG_START = 10.0;
 const float FOG_END = 100.0;
@@ -79,29 +78,32 @@ vec3 rotZ(vec3 p,float a){return vec3(p.x*cos(a)-p.y*sin(a), p.x*sin(a)+p.y*cos(
 float geometry( float march,
                 int type, 
                 bool reflected,
+                bool subtraction,
                 vec3 dimensions,
                 vec3 cell,
                 vec3 rot,
-                vec3 transition)
+                vec3 transLocal,
+                vec3 transGlobal)
 {  
   vec3 q;
-  if (type != 1) q = mod(rayPos, cell)-0.5*cell;
+
+  
+
+  if (length(cell)>0.) q = mod(rayPos, cell)-0.5*cell;
   else q = rayPos;
   
+  q -= transGlobal;
 
   if (reflected) {
     q = abs(q);
   }
 
+  q -= transLocal;
+
   q = rotX(q, rot.x);
   q = rotY(q, rot.y);
   q = rotZ(q, rot.z);
 
-  q -= transition;
-
-  
-
-  
   
   float marchNew;
   if (type==1) {
@@ -112,9 +114,9 @@ float geometry( float march,
     marchNew = sdBox(q, dimensions);
   } else if (type==4) {
     marchNew = sdCappedCylinder(q, dimensions.xy);
-  // } else {
   }
 
+  if (subtraction) return max(-marchNew, march);
   return min(march, marchNew);
 }
 
@@ -123,41 +125,51 @@ float distanceField()
 {
   float march = MAX_DIST;
 
-  march = geometry( march, 
-                    1,
-                    true,
-                    vec3(0.),   // dimensions
-                    vec3(0.),   // cell dimensions
-                    vec3(0.),   // rotations
-                    vec3(0.));  // transition
-  march = geometry( march, 
-                    2,  
-                    true,
-                    vec3(1.),
-                    vec3(3., 3.+u_time, 3.),
-                    vec3(0.),
-                    vec3(0.));
-  march = geometry( march, 
-                    3,
-                    true,
-                    vec3(0.5),
-                    vec3(3., 3., 3.),
-                    vec3(0., u_time/3., u_time),
-                    vec3(0.));
-  march = geometry( march, 
-                    4,
-                    true,
-                    vec3(0.1, 1., 0.),
-                    vec3(3., 3., 3.),
-                    vec3(1., u_time, 1.),
-                    vec3(0.));
-  march = geometry( march, 
-                    2,
-                    false,
-                    vec3(20.),
-                    vec3(0.),
-                    vec3(0.),
-                    vec3(8., 0., 30.));
+  // WALLS
+  march = geometry( 
+            // march, type, reflected, subtraction
+            march, 3, true, false,
+            // dimensions
+            vec3(7., 7., 6.),   
+            // cell dimensions
+            vec3(10., sin(u_time*0.2)*2.+10., 40.),   
+            // rotations
+            vec3(0., u_time*0.2, u_time*0.2),   
+            // transLocal
+            vec3(cos(u_time*0.2), sin(u_time*0.2)*3., 2.),
+            // transGlobal
+            vec3(0.)); 
+
+  // TUNNEL
+  march = geometry( 
+            // march, type, reflected, subtraction
+            march, 3, true, true,
+            // dimensions
+            vec3(15., 15., 50.),   
+            // cell dimensions
+            vec3(0.),   
+            // rotations
+            vec3(sin(u_time*0.2), cos(u_time*0.2), 0.),
+            // transLocal
+            vec3(0., 0., 0.),
+            // transGlobal
+            cameraPosition);
+            // vec3(0., 0., u_time*0.6));
+
+  // WALLS
+  march = geometry( 
+            // march, type, reflected, subtraction
+            march, 1, true, false,
+            // dimensions
+            vec3(0.),   
+            // cell dimensions
+            vec3(0.),   
+            // rotations
+            vec3(0.),   
+            // transLocal
+            vec3(0.),
+            // transGlobal
+            vec3(0.));
 
   return march;
 }
@@ -216,6 +228,7 @@ void main()
   float iter;
 
   rayPos = cameraPosition;
+
   for (int i = 0; i < MAX_ITER; i++)
   {
       dist = distanceField();
@@ -231,16 +244,10 @@ void main()
   //Shade
   if (dist < EPSILON)
   {
-      // float lightStrength = max(0.0, dot(sunDir, normal));
-      // lightStrength = pow(lightStrength, 4.);
-      // lightStrength = dither(ditherCoords, lightStrength);
-      iter /= float(MAX_ITER);
-      finalColor = vec4(hsv(iter, 1., 1.), 1.);
-      
-      // float fogStrength = smoothstep(FOG_START, FOG_END, totalDist);
-      // // fogStrength = dither(ditherCoords, fogStrength);
-      
-      // finalColor = mix(finalColor, fogColor, fogStrength);
+    iter /= float(MAX_ITER);
+    finalColor = vec4(hsv(iter+ u_time/30., 1., 1.), 1.);
+  } else {
+    finalColor = vec4(hsv(iter + u_time/30., 1., 0.9), 1.);
   }
   
   gl_FragColor = finalColor;
