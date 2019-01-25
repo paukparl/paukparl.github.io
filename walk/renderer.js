@@ -81,7 +81,7 @@ function makeRequest (method, url) {
 }
 
 // First, async load the vertex shader.
-makeRequest('GET', 'vertexShader.glsl')
+makeRequest('GET', 'vertex.glsl')
 .then(function (data) {
 
   // When resolved, save the vertex shader in the global variable.
@@ -89,7 +89,7 @@ makeRequest('GET', 'vertexShader.glsl')
 
   // Then, async load the fragment shader.
 //   return makeRequest('GET', '/fragmentShaders/ray_marching/01.glsl');
-  return makeRequest('GET', 'fragmentShaders/ray_marching/02_1.glsl');
+  return makeRequest('GET', 'fragment.glsl');
 })
 .then(function (data) {
   // When resolved, save the fragment shader in the global variable.
