@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById("c");
 const gl = canvas.getContext("webgl");
 if (!gl) {
@@ -14,7 +15,7 @@ let resolutionUniformLocation, timeUniformLocation, mouseUniformLocation;
 let mouseX = window.innerWidth/2
   , mouseY = window.innerHeight/2;
 let mouseInX = window.innerWidth/2
-  , mouseInY = window.innerHeight/2
+  , mouseInY = window.innerHeight/2;
 
 let showCode = false;
 
@@ -25,8 +26,6 @@ function mousemoveHandler(e) {
   e = e || window.event;
   mouseX = e.pageX; // *realToCSSPixels deleted for performance
   mouseY = e.pageY; // *realToCSSPixels deleted for performance
-
-  
 }
 
 
@@ -90,7 +89,7 @@ makeRequest('GET', 'vertexShader.glsl')
 
   // Then, async load the fragment shader.
 //   return makeRequest('GET', '/fragmentShaders/ray_marching/01.glsl');
-  return makeRequest('GET', 'fragmentShaders/ray_marching/02.glsl');
+  return makeRequest('GET', 'fragmentShaders/ray_marching/02_1.glsl');
 })
 .then(function (data) {
   // When resolved, save the fragment shader in the global variable.
